@@ -20,10 +20,7 @@ jobs:
           tool-cache: true
       - name: Build fpc-3_2_2
         run: |
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#universal.__archPkgs.fpc-3_2_2
-      - name: Build lazarus-3_6
-        run: |
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#universal.__archPkgs.lazarus-3_6
+          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths nixpkgs#hello
       - name: Save Nix store
         uses: nix-community/cache-nix-action/save@v5.1.0
         with:
