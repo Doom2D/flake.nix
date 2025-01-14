@@ -10,17 +10,17 @@
 
   buildToolsVersion = "35.0.0";
   cmakeVersion = "3.22.1";
-  ndkVersion = "27.0.12077973";
-  ndkBinutilsVersion = "22.1.7171670";
+  ndkVersion = "17.2.4988734";
+  ndkBinutilsVersion = ndkVersion;
   platformToolsVersion = "35.0.2";
   androidComposition = pkgs.androidenv.composeAndroidPackages {
     buildToolsVersions = [buildToolsVersion "28.0.3"];
     inherit platformToolsVersion;
-    platformVersions = ["34" "31" "28" "21"];
+    platformVersions = ["34" "31" "28" "21" "14"];
     abiVersions = ["armeabi-v7a" "arm64-v8a"];
     cmakeVersions = [cmakeVersion];
     includeNDK = true;
-    ndkVersions = [ndkVersion ndkBinutilsVersion];
+    ndkVersions = lib.unique [ndkVersion ndkBinutilsVersion];
 
     includeSources = false;
     includeSystemImages = false;
@@ -31,17 +31,20 @@
   androidSdk = androidComposition.androidsdk;
   androidNdk = "${androidSdk}/libexec/android-sdk/ndk-bundle";
   androidNdkBinutils = "${androidSdk}/libexec/android-sdk/ndk/${ndkBinutilsVersion}";
-  androidPlatform = "21";
+  androidPlatform = "14";
 
   architectures = {
     armv7 = rec {
       androidAbi = "armeabi-v7a";
+      libArch = "arm";
       clangTriplet = "arm-linux-androideabi";
       compiler = "armv7a-linux-androideabi";
       sysroot = "${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/sysroot";
       ndkLib = "${sysroot}/usr/lib/${clangTriplet}/${androidPlatform}";
+      ndkLibOld = "${androidNdkBinutils}/platforms/android-${androidPlatform}/arch-${libArch}/usr/lib";
       ndkToolchain = "${androidNdk}/toolchains/llvm/prebuilt/linux-x86_64/bin";
-      ndkBinutilsToolchain = "${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/bin";
+      ndkToolchainOld = "${androidNdk}/toolchains/${clangTriplet}-4.9/prebuilt/linux-x86_64/bin";
+      ndkBinutilsToolchain = ndkToolchainOld;
       name = "android-armeabi-v7a";
       isAndroid = true;
       isWindows = false;
@@ -56,7 +59,7 @@
       };
       fpcAttrs = rec {
         lazarusExists = false;
-        cpuArgs = ["-CpARMV7A" "-CfVFPV3" "-Fl${ndkLib}" "-XP${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/${clangTriplet}/bin/"];
+        cpuArgs = ["-CpARMV7A" "-CfVFPV3" "-Fl${ndkLib}" "-Fl${ndkLibOld}" "-XP${ndkToolchainOld}/${clangTriplet}-"];
         targetArg = "-Tandroid";
         basename = "crossarm";
         makeArgs = {
@@ -67,6 +70,7 @@
         };
         toolchainPaths = [
           ndkToolchain
+          ndkToolchainOld
           ndkBinutilsToolchain
         ];
       };
@@ -74,12 +78,17 @@
 
     armv8 = rec {
       androidAbi = "arm64-v8a";
+      libArch = "arm64";
       clangTriplet = "aarch64-linux-android";
       compiler = clangTriplet;
       sysroot = "${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/sysroot";
       ndkLib = "${sysroot}/usr/lib/${clangTriplet}/${androidPlatform}";
+      # FIXME
+      # Hardcoded Android 21 platform, where armv8 support was added.
+      ndkLibOld = "${androidNdkBinutils}/platforms/android-21/arch-${libArch}/usr/lib";
       ndkToolchain = "${androidNdk}/toolchains/llvm/prebuilt/linux-x86_64/bin";
-      ndkBinutilsToolchain = "${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/bin";
+      ndkToolchainOld = "${androidNdk}/toolchains/${clangTriplet}-4.9/prebuilt/linux-x86_64/bin";
+      ndkBinutilsToolchain = ndkToolchainOld;
       name = "android-arm64-v8a";
       isAndroid = true;
       isWindows = false;
@@ -94,7 +103,7 @@
       };
       fpcAttrs = rec {
         lazarusExists = false;
-        cpuArgs = ["-CpARMV8" "-CfVFP" "-Fl${ndkLib}" "-XP${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/${clangTriplet}/bin/"];
+        cpuArgs = ["-CpARMV8" "-CfVFP" "-Fl${ndkLib}" "-Fl${ndkLibOld}" "-XP${ndkToolchainOld}/${clangTriplet}-"];
         targetArg = "-Tandroid";
         basename = "crossa64";
         makeArgs = {
@@ -105,6 +114,7 @@
         };
         toolchainPaths = [
           ndkToolchain
+          ndkToolchainOld
           ndkBinutilsToolchain
         ];
       };
@@ -186,7 +196,7 @@
           installPhase =
             prev.installPhase
             + ''
-              [[ -f "$out/lib64/libfluidsynth.so" ]] && cp -r $out/lib64/* $out/lib/ || echo "good"
+              [[ -e "$out/lib64/libfluidsynth.so" ]] && cp -r $out/lib64/* $out/lib/ || :
             '';
         });
       wavpack = customNdkPkgs.wavpack {

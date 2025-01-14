@@ -19,7 +19,23 @@
     cmakeExtraArgs ? "",
     ...
   }: let
-    cmake = "${androidSdk}/libexec/android-sdk/cmake/3.22.1/bin/cmake";
+    cmake = "${pkgs.cmake}/bin/cmake";
+
+    # NDK r17 has a bug with ncurses5.
+    # https://github.com/android/ndk/issues/574
+    # This is a workaround.
+    ncursesFixed = pkgs.stdenvNoCC.mkDerivation {
+      pname = "libtinfo-symlink";
+      version = "${pkgs.ncurses5.version}";
+
+      src = null;
+      dontUnpack = true;
+
+      installPhase = ''
+        mkdir -p $out/lib
+        ln -s "${pkgs.ncurses5}/lib/libtinfo.so" "$out/lib/libtinfo.so.5"
+      '';
+    };
   in
     pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
       inherit version src;
@@ -30,17 +46,23 @@
 
       phases = ["unpackPhase" "buildPhase" "installPhase"];
 
+      nativeBuildInputs = [pkgs.cmake pkgs.gnumake];
+
+      # -DCMAKE_POLICY_DEFAULT_CMP0057=NEW \
       buildPhase = ''
         runHook preBuild
         ${lib.optionalString (!builtins.isNull cmakeListsPath) "cd ${cmakeListsPath}"}
         mkdir build
         cd build
+        # Provide libtinfo for bugged NDK clang versions
+        export LD_LIBRARY_PATH="${ncursesFixed}/lib"
         ${cmakePrefix} \
-          ${pkgs.cmake}/bin/cmake .. \
-            -DCMAKE_TOOLCHAIN_FILE=${androidNdk}/build/cmake/android.toolchain.cmake \
-            -DCMAKE_POLICY_DEFAULT_CMP0057=NEW \
-            -DBUILD_SHARED_LIBS=ON -DANDROID_ABI=${androidAbi} -DANDROID_PLATFORM=${androidPlatform} \
+          ${cmake} .. \
+            -DCMAKE_MAKE_PROGRAM=${pkgs.gnumake}/bin/make \
+            -DCMAKE_TOOLCHAIN_FILE="${androidNdk}/build/cmake/android.toolchain.cmake" \
+            -DBUILD_SHARED_LIBS=ON -DANDROID_ABI=${androidAbi} -DANDROID_PLATFORM=android-${androidPlatform} \
             -DCMAKE_BUILD_TYPE=Release \
+            -DANDROID_NDK=${androidNdk} \
             -DCMAKE_INSTALL_PREFIX=$out -DANDROID_STL=c++_static \
             ${cmakeExtraArgs}
         make -j$(nproc)
