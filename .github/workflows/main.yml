@@ -240,4 +240,4 @@ jobs:
           allowUpdates: false
           artifactErrorsFailBuild: true
           prerelease: true
-          replacesArtifacts: true
+
