@@ -23,12 +23,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: nixbuild/nix-quick-install-action@v29
-      - uses: actions/cache@v4
-        name: Initialize persistent cache
-        id: nix-cache
-        with:
-          path: /tmp/nixcache
-          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
       - name: Remove unnecessary packages
         run: | # stolen from https://github.com/easimon/maximize-build-space and https://github.com/actions/runner-images/issues/2840
           echo "=== Before pruning ==="
@@ -49,11 +43,16 @@ jobs:
         run: |
           NIXPKGS_REV=$(nix flake metadata . --json 2>/dev/null | jq --raw-output '.locks.nodes."nixpkgs".locked.rev')
           echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
+      - uses: actions/cache@v4
+        name: Initialize persistent cache
+        id: nix-cache
+        with:
+          path: /tmp/nixcache
+          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
       - name: Build .#${{ matrix.arch }}.bundles.default
         run: |
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#${{ matrix.arch }}.bundles.default
+          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths nixpkgs#hello
       - name: Export Nix store to cache
         run: |
           rm -rf /tmp/nixcache/*
-          nix copy --to /tmp/nixcache --inputs-from . --verbose .#{{ matrix.arch }}.bundles.default
-
+          nix copy --to /tmp/nixcache --inputs-from . --verbose nixpkgs#hello
