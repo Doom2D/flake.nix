@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-22.04
     strategy:
       matrix:
-        system:
+        arch:
           - android
           - apple
           - mingw
