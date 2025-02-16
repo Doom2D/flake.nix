@@ -85,7 +85,7 @@ jobs:
           NIXPKGS_REV=$(nix flake metadata . --json 2>/dev/null | jq --raw-output '.locks.nodes."nixpkgs".locked.rev')
           echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
       - name: Save Nix store
-        uses: nix-community/cache-nix-action/save@v5.1.0
+        uses: nix-community/cache-nix-action@v5.1.0
         with:
           primary-key: build-${{ runner.os }}-${{ env.NIXPKGS_REV }}
           restore-prefixes-all-matches: build-${{ runner.os }}
