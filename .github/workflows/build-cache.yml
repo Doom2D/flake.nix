@@ -53,6 +53,7 @@ jobs:
         if: ${{ matrix.arch == 'android' }}
         run: |
           nix build --verbose --show-trace --inputs-from . .#forPrebuild.x86_64-linux.arm64-v8a-linux-android
+          nix-copy-closure --to /tmp/nixcache_${{ matrix.arch }}
           nix build --verbose --show-trace --inputs-from . .#forPrebuild.x86_64-linux.armeabi-v7a-linux-android
           nix-copy-closure --to /tmp/nixcache_${{ matrix.arch }}
 
@@ -60,12 +61,14 @@ jobs:
         if: ${{ matrix.arch == 'apple' }}
         run: |
           nix build --verbose --show-trace --inputs-from . .#forPrebuild.x86_64-linux.arm64-apple-darwin
+          nix-copy-closure --to /tmp/nixcache_${{ matrix.arch }}
           nix build --verbose --show-trace --inputs-from . .#forPrebuild.x86_64-linux.x86_64-apple-darwin
           nix-copy-closure --to /tmp/nixcache_${{ matrix.arch }}
       - name: Save Mingw toolchain to cache
         if: ${{ matrix.arch == 'mingw' }}
         run: |
           nix build --verbose --show-trace --inputs-from . .#forPrebuild.x86_64-linux.mingw32
+          nix-copy-closure --to /tmp/nixcache_${{ matrix.arch }}
           nix build --verbose --show-trace --inputs-from . .#forPrebuild.x86_64-linux.mingw64
           nix-copy-closure --to /tmp/nixcache_${{ matrix.arch }}
       - uses: actions/cache/save@v4
