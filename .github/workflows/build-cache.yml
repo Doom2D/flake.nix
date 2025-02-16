@@ -45,7 +45,7 @@ jobs:
           echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
       - name: Build .#${{ matrix.arch }}.bundles.default
         run: |
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#hello
+          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths nixpkgs#hello
       - name: Save Nix store
         uses: nix-community/cache-nix-action/save@v5.1.0
         with:
