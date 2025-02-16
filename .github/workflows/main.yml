@@ -34,6 +34,7 @@ jobs:
 
   build:
     name: Build
+    needs: prepare
     runs-on: ubuntu-22.04
     strategy:
       matrix:
@@ -210,6 +211,7 @@ jobs:
 
   upload:
     name: Create a new release
+    needs: build
     runs-on: ubuntu-latest
     steps:
       - name: Download all artifacts in this run
