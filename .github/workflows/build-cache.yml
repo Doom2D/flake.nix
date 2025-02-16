@@ -23,6 +23,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: nixbuild/nix-quick-install-action@v29
+      - uses: actions/cache@v4
+        name: Initialize persistent cache
+        id: nix-cache
+        with:
+          path: /tmp/nixcache
+          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
       - name: Remove unnecessary packages
         run: | # stolen from https://github.com/easimon/maximize-build-space and https://github.com/actions/runner-images/issues/2840
           echo "=== Before pruning ==="
@@ -45,52 +51,9 @@ jobs:
           echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
       - name: Build .#${{ matrix.arch }}.bundles.default
         run: |
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths nixpkgs#hello
-      - name: Save Nix store
-        uses: nix-community/cache-nix-action/save@v5.1.0
-        with:
-          primary-key: build-${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle_${{ matrix.arch }}
-
-  merge-caches:
-    name: Merge caches
-    needs: make-caches
-    permissions:
-      actions: write
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v4
-      - uses: nixbuild/nix-quick-install-action@v29
-      - name: Remove unnecessary packages
-        run: | # stolen from https://github.com/easimon/maximize-build-space and https://github.com/actions/runner-images/issues/2840
-          echo "=== Before pruning ==="
-          df -h
-          sudo rm -rf /opt || :
-          sudo rm -rf /usr/share/dotnet || :
-          sudo rm -rf "/usr/local/share/boost" || :
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY" || :
-          sudo rm -rf /opt/hostedtoolcache/CodeQL || :
-          sudo rm -rf /usr/local/lib/android || :
-          sudo rm -rf /opt/ghc || :
-          sudo docker image prune --all --force || :
-          sudo docker builder prune -a || :
-          echo
-          echo "=== After pruning ==="
-          df -h
-      - name: Calculate cache hash based on nixpkgs' revision
+          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#${{ matrix.arch }}.bundles.default
+      - name: Export Nix store to cache
         run: |
-          NIXPKGS_REV=$(nix flake metadata . --json 2>/dev/null | jq --raw-output '.locks.nodes."nixpkgs".locked.rev')
-          echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
-      - name: Restore Nix store
-        uses: nix-community/cache-nix-action/restore@v5.1.0
-        with:
-          primary-key: "undefined"
-          restore-prefixes-all-matches: build-${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle
-      - name: Save Nix store
-        uses: nix-community/cache-nix-action/save@v5.1.0
-        with:
-          primary-key: build-${{ runner.os }}-${{ env.NIXPKGS_REV }}
-          purge: true
-          purge-prefixes: build-${{ runner.os }}-
-          purge-created: 0
-          purge-primary-key: never
+          rm -rf /tmp/nixcache/*
+          nix copy --to /tmp/nixcache --inputs-from . --verbose .#{{ matrix.arch }}.bundles.default
 
