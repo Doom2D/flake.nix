@@ -45,7 +45,7 @@ jobs:
           echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
       - name: Build .#${{ matrix.arch }}.bundles.default
         run: |
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#${{ matrix.arch }}.bundles.default
+          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#hello
       - name: Save Nix store
         uses: nix-community/cache-nix-action/save@v5.1.0
         with:
@@ -87,7 +87,7 @@ jobs:
         uses: nix-community/cache-nix-action/save@v5.1.0
         with:
           primary-key: build-${{ runner.os }}-${{ env.NIXPKGS_REV }}
-          restore-preixes-all-matches: build-${{ runner.os }}
+          restore-prefixes-all-matches: build-${{ runner.os }}
           purge: true
           purge-prefixes: build-${{ runner.os }}
           purge-created: 0
