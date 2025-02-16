@@ -76,9 +76,6 @@ jobs:
           nix copy --to /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.mingw64
       - name: Restore updated flake.lock
         uses: actions/download-artifact@v4
-        with:
-          name: flake.lock
-          path: flake.lock
       - name: Build debug APK
         if: ${{ matrix.arch == 'android' }}
         env:
