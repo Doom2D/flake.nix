@@ -7,28 +7,6 @@ env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
-  prelude:
-    name: Progrev cache
-    permissions:
-      actions: write
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: nixbuild/nix-quick-install-action@v29
-      - uses: actions/cache/restore@v4
-        name: Restore persistent cache
-        with:
-          path: /tmp/nixcache
-          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
-      - name: Clear the cache
-        run: |
-          rm -rf /tmp/nixcache/*
-      - uses: actions/cache/save@v4
-        name: Save the empty cache
-        with:
-          path: /tmp/nixcache
-          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
-
   make-caches:
     name: Make caches
     permissions:
@@ -72,7 +50,8 @@ jobs:
           key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle_${{ matrix.arch }}
       - name: Build .#${{ matrix.arch }}.bundles.default
         run: |
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths nixpkgs#hello
+          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#${{ matrix.arch }}.bundles.default
+          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#${{ matrix.arch }}.__archPkgs.fpc
       - name: Export Nix store to cache
         run: |
           nix copy --to /tmp/nixcache --inputs-from . --verbose nixpkgs#hello
@@ -80,4 +59,4 @@ jobs:
         name: Save persistent cache
         with:
           path: /tmp/nixcache
-          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle_${{ matrix.arch }}          
+          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle_${{ matrix.arch }}

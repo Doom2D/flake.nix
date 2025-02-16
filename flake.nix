@@ -125,7 +125,13 @@
       forPrebuild = let
         arches = ["mingw32" "mingw64" "x86_64-apple-darwin" "arm64-apple-darwin" "android"];
       in
-        pkgs.linkFarmFromDrvs "cache" (lib.map (x: self.legacyPackages.x86_64-linux.${x}.bundles.default.overrideAttrs (final: {pname = x;})) arches);
+        pkgs.linkFarmFromDrvs "cache" (lib.foldl (a: b:
+          ([
+            (self.legacyPackages.x86_64-linux.${b}.bundles.default.overrideAttrs
+              (final: {pname = b;}))
+          ])
+          ++ a) []
+        arches);
 
       devShells = {
         default = pkgs.mkShell {
