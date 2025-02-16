@@ -11,14 +11,6 @@ jobs:
     name: Make caches
     permissions:
       actions: write
-    strategy:
-      matrix:
-        arch:
-          - android
-          - mingw32
-          - mingw64
-          - x86_64-apple-darwin
-          - arm64-apple-darwin
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -47,14 +39,13 @@ jobs:
         name: Restore persistent cache
         with:
           path: /tmp/nixcache
-          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle_${{ matrix.arch }}
+          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
       - name: Build .#${{ matrix.arch }}.bundles.default
         run: |
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#${{ matrix.arch }}.bundles.default
-          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#${{ matrix.arch }}.__archPkgs.fpc
+          nix build --inputs-from . --verbose --show-trace --print-build-logs --print-out-paths .#forPrebuild.x86_64-linux
       - name: Export Nix store to cache
         run: |
-          nix copy --to /tmp/nixcache --inputs-from . --verbose nixpkgs#hello
+          nix copy --to /tmp/nixcache --inputs-from . --verbose .#forPrebuild.x86_64-linux
       - uses: actions/cache/save@v4
         name: Save persistent cache
         with:

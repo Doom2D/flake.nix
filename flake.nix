@@ -123,15 +123,24 @@
       };
 
       forPrebuild = let
-        arches = ["mingw32" "mingw64" "x86_64-apple-darwin" "arm64-apple-darwin" "android"];
+        arches = ["mingw32" "mingw64" "x86_64-apple-darwin" "arm64-apple-darwin" "armeabi-v7a-linux-android" "arm64-v8a-linux-android"];
       in
-        pkgs.linkFarmFromDrvs "cache" (lib.foldl (a: b:
+        pkgs.linkFarmFromDrvs "cache" (let archPkgs = (lib.foldl (a: b:
           ([
+            (self.legacyPackages.x86_64-linux.${b}.__archPkgs.fpc-trunk.overrideAttrs (final: {
+              name = "fpc-trunk-${b}";
+              pname = "fpc-trunk-${b}";
+            }))
+            (self.legacyPackages.x86_64-linux.${b}.__archPkgs.fpc-3_2_2.overrideAttrs (final: {
+              name = "fpc-release-${b}";
+              pname = "fpc-release-${b}";
+            }))
+          ]  ++ lib.optionals (self.legacyPackages.x86_64-linux.${b} ? bundles.default) [
             (self.legacyPackages.x86_64-linux.${b}.bundles.default.overrideAttrs
               (final: {pname = b;}))
           ])
           ++ a) []
-        arches);
+          arches); in archPkgs ++ [self.legacyPackages.x86_64-linux.universal.__archPkgs.lazarus]);
 
       devShells = {
         default = pkgs.mkShell {
