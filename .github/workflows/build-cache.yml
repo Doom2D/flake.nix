@@ -50,17 +50,17 @@ jobs:
           path: /tmp/nixcache_${{ matrix.arch }}
           key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}-${{ matrix.arch }}
       - name: Save Android toolchain to cache
-        if: ${{ matrix.arch }} == "android"
+        if: ${{ matrix.arch == 'android' }}
         run: |
           nix copy --to /tmp/nixcache --inputs-from . --verbose .#forPrebuild.x86_64-linux.arm64-v8a-linux-android
           nix copy --to /tmp/nixcache --inputs-from . --verbose .#forPrebuild.x86_64-linux.armeabi-v7a-linux-android
       - name: Save macOS toolchain to cache
-        if: ${{ matrix.arch }} == "apple"
+        if: ${{ matrix.arch == 'apple' }}
         run: |
           nix copy --to /tmp/nixcache --inputs-from . --verbose .#forPrebuild.x86_64-linux.x86_64-apple-darwin
           nix copy --to /tmp/nixcache --inputs-from . --verbose .#forPrebuild.x86_64-linux.arm64-apple-darwin
       - name: Save Mingw toolchain to cache
-        if: ${{ matrix.arch }} == "mingw"
+        if: ${{ matrix.arch == 'mingw' }}
         run: |
           nix copy --to /tmp/nixcache --inputs-from . --verbose .#forPrebuild.x86_64-linux.mingw32
           nix copy --to /tmp/nixcache --inputs-from . --verbose .#forPrebuild.x86_64-linux.mingw64
