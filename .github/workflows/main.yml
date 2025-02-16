@@ -12,6 +12,22 @@ jobs:
     name: Prepare the environment
     runs-on: ubuntu-latest
     steps:
+      - name: Free space
+        run: | # stolen from https://github.com/easimon/maximize-build-space and https://github.com/actions/runner-images/issues/2840
+          echo "=== Before pruning ==="
+          df -h
+          sudo rm -rf /opt || :
+          sudo rm -rf /usr/share/dotnet || :
+          sudo rm -rf "/usr/local/share/boost" || :
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY" || :
+          sudo rm -rf /opt/hostedtoolcache/CodeQL || :
+          sudo rm -rf /usr/local/lib/android || :
+          sudo rm -rf /opt/ghc || :
+          sudo docker image prune --all --force || :
+          sudo docker builder prune -a || :
+          echo
+          echo "=== After pruning ==="
+          df -h
       - name: Checkout the master branch
         uses: actions/checkout@v4
       - name: Install Nix
@@ -54,16 +70,16 @@ jobs:
         uses: rrbutani/use-nix-shell-action@v1
         with:
           devShell: .#ciDefault
-      - name: Enter Android tailored shell
-        if: ${{ matrix.arch == 'android' }}
-        uses: rrbutani/use-nix-shell-action@v1
-        with:
-          devShell: .#android
       - name: Restore Android toolchain from cache
         if: ${{ matrix.arch == 'android' }}
         run: |
           nix copy --from /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.arm64-v8a-linux-android
           nix copy --from /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.armeabi-v7a-linux-android
+      - name: Enter Android tailored shell
+        if: ${{ matrix.arch == 'android' }}
+        uses: rrbutani/use-nix-shell-action@v1
+        with:
+          devShell: .#android
       - name: Restore macOS toolchain from cache
         if: ${{ matrix.arch == 'apple' }}
         run: |
@@ -239,4 +255,3 @@ jobs:
           allowUpdates: false
           artifactErrorsFailBuild: true
           prerelease: true
-
