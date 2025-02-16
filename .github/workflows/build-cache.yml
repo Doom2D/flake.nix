@@ -17,7 +17,6 @@ jobs:
       - uses: nixbuild/nix-quick-install-aciton@v29
       - uses: actions/cache/restore@v4
         name: Restore persistent cache
-        id: nix-cache
         with:
           path: /tmp/nixcache
           key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
@@ -26,7 +25,6 @@ jobs:
           rm -rf /tmp/nixcache/*
       - uses: actions/cache/save@v4
         name: Save the empty cache
-        id: nix-cache
         with:
           path: /tmp/nixcache
           key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
@@ -69,7 +67,6 @@ jobs:
           echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
       - uses: actions/cache/restore@v4
         name: Restore persistent cache
-        id: nix-cache
         with:
           path: /tmp/nixcache
           key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle_${{ matrix.arch }}
@@ -81,7 +78,6 @@ jobs:
           nix copy --to /tmp/nixcache --inputs-from . --verbose nixpkgs#hello
       - uses: actions/cache/save@v4
         name: Save persistent cache
-        id: nix-cache
         with:
           path: /tmp/nixcache
           key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle_${{ matrix.arch }}          
