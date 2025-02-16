@@ -50,4 +50,4 @@ jobs:
         name: Save persistent cache
         with:
           path: /tmp/nixcache
-          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}-bundle_${{ matrix.arch }}
+          key: ${{ runner.os }}-${{ env.NIXPKGS_REV }}
