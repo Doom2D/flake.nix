@@ -8,56 +8,92 @@ permissions:
   pull-requests: write
 
 jobs:
-  build:
-    name: Build
-    runs-on: ubuntu-22.04
+  prepare:
+    name: Prepare the environment
+    runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - uses: nixbuild/nix-quick-install-action@v29
-      - name: Remove unnecessary packages
-        run: | # stolen from https://github.com/easimon/maximize-build-space and https://github.com/actions/runner-images/issues/2840
-          echo "=== Before pruning ==="
-          df -h
-          sudo rm -rf /opt || :
-          sudo rm -rf /usr/share/dotnet || :
-          sudo rm -rf "/usr/local/share/boost" || :
-          sudo rm -rf "$AGENT_TOOLSDIRECTORY" || :
-          sudo rm -rf /opt/hostedtoolcache/CodeQL || :
-          sudo rm -rf /usr/local/lib/android || :
-          sudo rm -rf /opt/ghc || :
-          sudo docker image prune --all --force || :
-          sudo docker builder prune -a || :
-          echo
-          echo "=== After pruning ==="
-          df -h
-      # To make the environment in the flake's devShell available to future steps:
-      - uses: rrbutani/use-nix-shell-action@v1
+      - name: Checkout the master branch
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: nixbuild/nix-quick-install-action@v29
         with:
-          devShell: .#default
-      - name: Calculate cache hash based on nixpkgs' revision
-        run: |
-          NIXPKGS_REV=$(nix flake metadata . --json 2>/dev/null | jq --raw-output '.locks.nodes."nixpkgs".locked.rev')
-          echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
-      - name: Restore cache
-        uses: nix-community/cache-nix-action/restore@v5.1.0
+          nix_conf: |
+            require-sigs = false
+      - name: Enter CI tailored shell
+        uses: rrbutani/use-nix-shell-action@v1
         with:
-          primary-key: build-${{ runner.os }}-${{ env.NIXPKGS_REV }}
-          fail-on: primary-key.miss
+          devShell: .#ciDefault
       - name: Update Doom2D related inputs and populate environment variables
         run: |
           bash ./game/bundle/scripts/mkEnv.bash
+      - name: Save updated flake.lock
+        uses: actions/upload-artifact@v4
+        with:
+          name: flake.lock
+          path: flake.lock
+
+  build:
+    name: Build
+    runs-on: ubuntu-22.04
+    strategy:
+      matrix:
+        system:
+          - android
+          - apple
+          - mingw
+    steps:
+      - name: Checkout the master branch
+        uses: actions/checkout@v4
+      - name: Install Nix
+        uses: nixbuild/nix-quick-install-action@v29
+        with:
+          nix_conf: |
+            require-sigs = false
+      - name: Enter CI tailored shell
+        uses: rrbutani/use-nix-shell-action@v1
+        with:
+          devShell: .#ciDefault
+      - name: Enter Android tailored shell
+        if: ${{ matrix.arch == 'android' }}
+        uses: rrbutani/use-nix-shell-action@v1
+        with:
+          devShell: .#android
+      - name: Restore Android toolchain from cache
+        if: ${{ matrix.arch == 'android' }}
+        run: |
+          nix copy --from /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.arm64-v8a-linux-android
+          nix copy --from /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.armeabi-v7a-linux-android
+      - name: Restore macOS toolchain from cache
+        if: ${{ matrix.arch == 'apple' }}
+        run: |
+          nix copy --to /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.x86_64-apple-darwin
+          nix copy --to /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.arm64-apple-darwin
+      - name: Restore Mingw toolchain from cache
+        if: ${{ matrix.arch == 'mingw' }}
+        run: |
+          nix copy --to /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.mingw32
+          nix copy --to /tmp/nixcache_${{ matrix.arch }} --inputs-from . --verbose .#forPrebuild.x86_64-linux.mingw64
+      - name: Restore updated flake.lock
+        uses: actions/download-artifact@v4
+        with:
+          name: flake.lock
+          path: flake.lock
       - name: Build debug APK
+        if: ${{ matrix.arch == 'android' }}
         env:
           ASSETS_GUS: 1
           BASE_APK: Doom2D-Forever
         run: |
           bash ./game/bundle/scripts/mkAndroid.bash
-      - uses: actions/upload-artifact@v4
+      - name: Upload debug APK
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.arch == 'android' }}
         with:
           name: Doom2D-Forever.apk
           path: Doom2D-Forever.apk
           if-no-files-found: error
       - name: Build Windows x86 ZIP bundle
+        if: ${{ matrix.arch == 'mingw' }}
         env:
           D2DF_LAST_COMMIT_DATE: ${{ env.D2DF_LAST_COMMIT_DATE }}
           RES_LAST_COMMIT_DATE: ${{ env.RES_LAST_COMMIT_DATE }}
@@ -74,11 +110,14 @@ jobs:
           export IS_WINDOWS=1
 
           bash ./game/bundle/scripts/mkZip.bash
-      - uses: actions/upload-artifact@v4
+      - name: Upload Windows x86 ZIP bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.arch == 'mingw' }}
         with:
           name: doom2df_windows.x86
           path: doom2df_windows.x86.zip
       - name: Build Windows x86_64 ZIP bundle
+        if: ${{ matrix.arch == 'mingw' }}
         env:
           D2DF_LAST_COMMIT_DATE: ${{ env.D2DF_LAST_COMMIT_DATE }}
           RES_LAST_COMMIT_DATE: ${{ env.RES_LAST_COMMIT_DATE }}
@@ -95,11 +134,14 @@ jobs:
           export IS_WINDOWS=1
 
           bash ./game/bundle/scripts/mkZip.bash
-      - uses: actions/upload-artifact@v4
+      - name: Upload Windows x86_64 ZIP bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.arch == 'mingw' }}
         with:
           name: doom2df_win64.x86-64
           path: doom2df_win64.x86-64.zip
       - name: Build MacOS x86_64 ZIP bundle
+        if: ${{ matrix.arch == 'apple' }}
         env:
           D2DF_LAST_COMMIT_DATE: ${{ env.D2DF_LAST_COMMIT_DATE }}
           RES_LAST_COMMIT_DATE: ${{ env.RES_LAST_COMMIT_DATE }}
@@ -115,11 +157,14 @@ jobs:
           export BUILD_ARCH=x86_64-apple-darwin
 
           bash ./game/bundle/scripts/mkZip.bash
-      - uses: actions/upload-artifact@v4
+      - name: Upload MacOS x86_64 ZIP bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.arch == 'apple' }}
         with:
           name: doom2df_macos.intel64
           path: doom2df_macos.intel64.zip
       - name: Build MacOS aarch64 ZIP bundle
+        if: ${{ matrix.arch == 'apple' }}
         env:
           D2DF_LAST_COMMIT_DATE: ${{ env.D2DF_LAST_COMMIT_DATE }}
           RES_LAST_COMMIT_DATE: ${{ env.RES_LAST_COMMIT_DATE }}
@@ -135,11 +180,14 @@ jobs:
           export BUILD_ARCH=arm64-apple-darwin
 
           bash ./game/bundle/scripts/mkZip.bash
-      - uses: actions/upload-artifact@v4
+      - name: Upload MacOS aarch64 ZIP bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.arch == 'apple' }}
         with:
           name: doom2df_macos.aarch64
           path: doom2df_macos.aarch64.zip
-      - name: Build MacOS x86_64 app bundle
+      - name: Build MacOS app bundle
+        if: ${{ matrix.arch == 'apple' }}
         env:
           D2DF_LAST_COMMIT_DATE: ${{ env.D2DF_LAST_COMMIT_DATE }}
           RES_LAST_COMMIT_DATE: ${{ env.RES_LAST_COMMIT_DATE }}
@@ -152,11 +200,20 @@ jobs:
           export DISTRO_CONTENT_CREATION_DATE=$DISTRO_CONTENT_CREATION_DATE
 
           bash ./game/bundle/scripts/mkApple.bash
-      - uses: actions/upload-artifact@v4
+      - name: Upload MacOS app bundle
+        uses: actions/upload-artifact@v4
+        if: ${{ matrix.arch == 'apple' }}
         with:
           name: Doom2D-Forever.dmg
           path: Doom2D-Forever.dmg
           if-no-files-found: error
+
+  upload:
+    name: Create a new release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all artifacts in this run
+        uses: actions/download-artifact@v4
       - name: Calculate new build number
         run: |
           GITHUB_RESPONSE_FILE=github_response
@@ -173,7 +230,9 @@ jobs:
       - uses: ncipollo/release-action@v1
         if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch'}}
         with:
-          artifacts: doom2df_windows.x86.zip, Doom2D-Forever.apk, doom2df_win64.x86-64, doom2df_macos.intel64.zip, doom2df_macos.arm64.zip, Doom2D-Forever.dmg
+          artifacts: doom2df_windows.x86.zip, Doom2D-Forever.apk, doom2df_win64.x86-64.zip, doom2df_macos.intel64.zip, doom2df_macos.arm64.zip, Doom2D-Forever.dmg
+          replacesArtifacts: false
+          removeArtifacts: false
           token: ${{ secrets.GITHUB_TOKEN }}
           name: ${{ env.RELEASE_NAME }}
           bodyFile: release_body
