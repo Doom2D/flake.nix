@@ -127,9 +127,13 @@
       in
         lib.foldl (acc: cur: let
           filtered = lib.removeAttrs self.legacyPackages.x86_64-linux.${cur}.__archPkgs ["doom2d" "infoAttrs"];
-          drvs = lib.filter (x: !builtins.isNull x && ( x ? name)) (lib.attrValues filtered);
+          drvs = lib.filter (x: !builtins.isNull x && (x ? name)) (lib.attrValues filtered);
         in
-          acc // {"${cur}" = pkgs.linkFarmFromDrvs "cache-${cur}" drvs;}) {}
+          acc
+          // {
+            "${cur}" =
+              pkgs.closureInfo {rootPaths = [(pkgs.linkFarmFromDrvs "cache-${cur}" drvs)];};
+          }) {}
         arches;
 
       devShells = {
