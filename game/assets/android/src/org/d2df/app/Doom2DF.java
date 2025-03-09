@@ -60,9 +60,13 @@ public class Doom2DF extends SDLActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     Log.e("d2df", "Trying to set fullscreen!");
-    getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
-                         WindowManager.LayoutParams.FLAG_FULLSCREEN);
-    setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    try {
+      getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
+                           WindowManager.LayoutParams.FLAG_FULLSCREEN);
+      setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    } catch(Exception e) {
+      Log.e("d2df", "Failed to set fullscreen!");
+    }
 
     Log.d("d2df", "Welcome to Doom2D Forever!");
 
