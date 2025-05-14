@@ -3,11 +3,11 @@
     "DF-Assets": {
       "flake": false,
       "locked": {
-        "lastModified": 1740286330,
-        "narHash": "sha256-i3GSkUW1FE1RLJRWhmYAZoHqyNyZlxnuVkpA6vP8unM=",
+        "lastModified": 1747160229,
+        "narHash": "sha256-RgsnLucWpM1lU8liy5++IDLFVp+mZQV/jd0/iDctmgE=",
         "ref": "refs/heads/master",
-        "rev": "2ffc08a80d6b529880cbe9cf7ac26475b04e9d1d",
-        "revCount": 77,
+        "rev": "5ed3e57b7ddc36e1568eb543774a4caccfba538a",
+        "revCount": 79,
         "type": "git",
         "url": "https://github.com/Doom2D/DF-Assets"
       },
@@ -19,11 +19,11 @@
     "Doom2D-Forever": {
       "flake": false,
       "locked": {
-        "lastModified": 1741199316,
-        "narHash": "sha256-lIGKpEOnmAnc0OR6gYFfP6utOFM/TWYyogQ49Axtstc=",
+        "lastModified": 1747153240,
+        "narHash": "sha256-ESaMV7HqISNRayuIqKExd3Ffn6KKAIftbgOlhuB9Zog=",
         "ref": "refs/heads/master",
-        "rev": "21ccd14c1d15e7b1728050212363e64339115f52",
-        "revCount": 1587,
+        "rev": "bd5e0adfbdbdb2a74e9464cc4c5555fb834e1877",
+        "revCount": 1600,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/Doom2D/Doom2D-Forever"
@@ -37,7 +37,7 @@
     "d2df-distro-content": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-9zJDaoilo1Wng2GjpdPqPq/BBbkt3t4xdD+2x0ReImc=",
+        "narHash": "sha256-FLLxyiHeU3Gk1z9M1FVZpVi5QGZRYitELwCAWP7YinE=",
         "type": "file",
         "url": "https://doom2d.org/doom2d_forever/latest/df_distro_content.rar"
       },
