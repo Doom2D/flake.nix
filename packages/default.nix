@@ -187,7 +187,11 @@
       executables = callPackage mkExecutablePath rec {
         byArchPkgsAttrs = {
           "${arch}" = {
-            sharedLibraries = let game = lib.map (drv: drv.out) defaultExecutable.buildInputs; editor = archAttrs.editor.buildInputs or []; in lib.filter (x: !builtins.isNull x) (game ++ editor);
+            sharedLibraries = let
+              game = lib.map (drv: drv.out) defaultExecutable.buildInputs;
+              editor = archAttrs.editor.buildInputs or [];
+            in
+              lib.filter (x: !builtins.isNull x) (game ++ editor);
             majorPlatform = archAttrs.infoAttrs.majorPlatform;
             doom2df = defaultExecutable;
             doom2dfHeadless = headlessDrv;

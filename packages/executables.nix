@@ -110,8 +110,7 @@
             ;
         };
       };
-    in
-      (lib.recursiveUpdate archAttrs gamePkgs);
+    in (lib.recursiveUpdate archAttrs gamePkgs);
   in let
     res =
       (lib.mapAttrs fromCrossPkgsAttrs crossPkgs) // {universal = universal;};
