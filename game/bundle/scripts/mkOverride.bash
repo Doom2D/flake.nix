@@ -3,6 +3,7 @@ set -euo pipefail
 #D2DF_LAST_COMMIT_DATE="2025-03-04 22:30:32 +0300"
 #EDITOR_LAST_COMMIT_DATE="2025-03-05 00:05:50 +1000"
 #RES_LAST_COMMIT_DATE="2025-02-23 14:52:10 +1000"
+# Uncomment for a non-CI, debug build
 LAST_COMMIT=$(git rev-parse HEAD)
 CMD=$(
 cat <<EOF
