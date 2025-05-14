@@ -37,7 +37,7 @@
     "d2df-distro-content": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-FLLxyiHeU3Gk1z9M1FVZpVi5QGZRYitELwCAWP7YinE=",
+        "narHash": "sha256-vwicj3QarN6IuTCYgwxWTB1Mo5ysxBXrUXSL3xVVtkM=",
         "type": "file",
         "url": "https://doom2d.org/doom2d_forever/latest/df_distro_content.rar"
       },
