@@ -203,7 +203,10 @@
           };
         };
       };
-      licenses = callPackage mkLicenses {inherit assets executables;};
+      licenses = callPackage mkLicenses {
+        inherit assets executables;
+        useUnixLineEndings = !archAttrs.infoAttrs.isWindows;
+      };
       zip = let
         zip = callPackage mkZip {inherit assets executables licenses;};
       in
