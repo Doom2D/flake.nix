@@ -27,6 +27,8 @@
     gameWad = wads.game;
     editorWad = wads.editor;
     editorLangRu = "${d2df-editor}/lang/editor.ru_RU.lng";
+    botlist = "${DF-Assets}/plain/botlist.txt";
+    botnames = "${DF-Assets}/plain/botnames.txt";
     extraRoots = let
       mkTxtFile = name': txt:
         stdenv.mkDerivation {

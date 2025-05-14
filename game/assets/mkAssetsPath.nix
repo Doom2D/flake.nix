@@ -10,6 +10,9 @@
   withDates ? false,
   assetsDate ? null,
   editorDate ? null,
+  botlist ? null,
+  botnames ? null,
+  withBotRelatedStuff ? true,
   withDistroContent ? false,
   distroContent ? null,
   distroMidiBanks ? null,
@@ -70,9 +73,17 @@ stdenvNoCC.mkDerivation {
       touch -d "${editorDate}" data/${resName "editor.WAD"}
       find data/lang -type f -exec touch -d "${editorDate}" {} \;
     ''
+    + lib.optionalString withBotRelatedStuff ''
+      cp "${botlist}" data/botlist.txt
+      cp "${botnames}" data/botnames.txt
+      touch -d "${assetsDate}" data/botlist.txt
+      touch -d "${assetsDate}" data/botnames.txt
+    ''
     + lib.optionalString withDistroContent (let
+      # If flexui is not needed, add its mask to exclude filter.
       flexUiMask = lib.optionalString (!flexuiDistro) "data/flexui.wad";
       activeMasks = lib.filter (x: x != "") [flexUiMask];
+      # Exclude all patterns from activeMasks when unpacking distroContent.
       filters = lib.map (x: "-x\"${x}\"") activeMasks;
       switch = lib.concatStringsSep " " filters;
     in ''
