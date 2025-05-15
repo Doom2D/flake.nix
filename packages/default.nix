@@ -235,7 +235,10 @@
       withDistroGus = lib.any (a: a.infoAttrs.bundle.assets.midiBank == "gus") (lib.attrValues macArches);
       withDistroSoundfont = lib.any (a: a.infoAttrs.bundle.assets.midiBank == "soundfont") (lib.attrValues macArches);
     };
-    licenses = callPackage mkLicenses {inherit assets executables;};
+    licenses = callPackage mkLicenses {inherit assets executables;
+    # macOS uses UNIX line endings
+    useUnixLineEndings = false;
+    };
     executables = callPackage mkExecutablePath {
       byArchPkgsAttrs =
         lib.mapAttrs (arch: archAttrs: let
