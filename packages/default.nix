@@ -235,9 +235,10 @@
       withDistroGus = lib.any (a: a.infoAttrs.bundle.assets.midiBank == "gus") (lib.attrValues macArches);
       withDistroSoundfont = lib.any (a: a.infoAttrs.bundle.assets.midiBank == "soundfont") (lib.attrValues macArches);
     };
-    licenses = callPackage mkLicenses {inherit assets executables;
-    # macOS uses UNIX line endings
-    useUnixLineEndings = false;
+    licenses = callPackage mkLicenses {
+      inherit assets executables;
+      # macOS uses UNIX line endings
+      useUnixLineEndings = true;
     };
     executables = callPackage mkExecutablePath {
       byArchPkgsAttrs =
@@ -314,7 +315,11 @@
         withDistroGus = true;
       };
       executables = gameExecutablePath;
-      licenses = callPackage mkLicenses {inherit assets executables;};
+      licenses = callPackage mkLicenses {
+        inherit assets executables;
+        # Android uses UNIX line endings.
+        useUnixLineEndings = true;
+      };
     in {
       bundles = rec {
         default = callPackage mkAndroidApk {
