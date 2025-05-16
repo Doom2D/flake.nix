@@ -3,11 +3,11 @@
     "DF-Assets": {
       "flake": false,
       "locked": {
-        "lastModified": 1747160229,
-        "narHash": "sha256-RgsnLucWpM1lU8liy5++IDLFVp+mZQV/jd0/iDctmgE=",
+        "lastModified": 1747336535,
+        "narHash": "sha256-SVaDyWrd3IM9sO0XGYakEdAsFroCPxhmJDxr8mJVHC4=",
         "ref": "refs/heads/master",
-        "rev": "5ed3e57b7ddc36e1568eb543774a4caccfba538a",
-        "revCount": 79,
+        "rev": "9a8c12788a7890abb54ff9e5ae83a9dd06e358b3",
+        "revCount": 85,
         "type": "git",
         "url": "https://github.com/Doom2D/DF-Assets"
       },
@@ -19,11 +19,11 @@
     "Doom2D-Forever": {
       "flake": false,
       "locked": {
-        "lastModified": 1747153240,
-        "narHash": "sha256-ESaMV7HqISNRayuIqKExd3Ffn6KKAIftbgOlhuB9Zog=",
+        "lastModified": 1747336971,
+        "narHash": "sha256-JBNvXhPQLnqZOwXZSzfKnggtPbgpdre6mktdRPrkGiQ=",
         "ref": "refs/heads/master",
-        "rev": "bd5e0adfbdbdb2a74e9464cc4c5555fb834e1877",
-        "revCount": 1600,
+        "rev": "c529616135953bd95863d2891de040a5efe8409b",
+        "revCount": 1602,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/Doom2D/Doom2D-Forever"
@@ -115,11 +115,11 @@
         "nixpkgs": "nixpkgs"
       },
       "locked": {
-        "lastModified": 1731952509,
-        "narHash": "sha256-p4gB3Rhw8R6Ak4eMl8pqjCPOLCZRqaehZxdZ/mbFClM=",
+        "lastModified": 1737420293,
+        "narHash": "sha256-F1G5ifvqTpJq7fdkT34e/Jy9VCyzd5XfJ9TO8fHhJWE=",
         "owner": "nix-community",
         "repo": "nix-github-actions",
-        "rev": "7b5f051df789b6b20d259924d349a9ba3319b226",
+        "rev": "f4158fa080ef4503c8f4c820967d946c2af31ec9",
         "type": "github"
       },
       "original": {
@@ -144,11 +144,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1741010256,
-        "narHash": "sha256-WZNlK/KX7Sni0RyqLSqLPbK8k08Kq7H7RijPJbq9KHM=",
+        "lastModified": 1747179050,
+        "narHash": "sha256-qhFMmDkeJX9KJwr5H32f1r7Prs7XbQWtO0h3V0a0rFY=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "ba487dbc9d04e0634c64e3b1f0d25839a0a68246",
+        "rev": "adaa24fbf46737f3f1b5497bf64bae750f82942e",
         "type": "github"
       },
       "original": {

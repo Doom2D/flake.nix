@@ -7,13 +7,13 @@
 }: {
   SDL2 = {
     pname = "SDL2";
-    version = "release-2.32.2";
+    version = "release-2.32.6";
     src = fetchFromGitHub {
       owner = "libsdl-org";
       repo = "SDL";
-      rev = "release-2.32.2";
+      rev = "release-2.32.6";
       fetchSubmodules = false;
-      sha256 = "sha256-Gtg8G1tRouGZbes1KhsXpYbItpNHYqJCiQKW/L77b+U=";
+      sha256 = "sha256-sXlW+ivDRCNMcZDzZEfOPGvFGU0aE4n/fO+Wxym6GGw=";
     };
   };
   SDL2_android = {
@@ -82,17 +82,17 @@
   };
   fpc = {
     pname = "fpc";
-    version = "d34d5c545944537cf458f5d388205cb88f3ee24a";
+    version = "e2d58b8b944227a6b1911c62bb59cbc686da0ac2";
     src = fetchgit {
       url = "https://gitlab.com/freepascal.org/fpc/source";
-      rev = "d34d5c545944537cf458f5d388205cb88f3ee24a";
+      rev = "e2d58b8b944227a6b1911c62bb59cbc686da0ac2";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [];
-      sha256 = "sha256-ggiI/2GxqhB5kN1nAMd2kghnDAEU3LxU7YG8vqeCgNA=";
+      sha256 = "sha256-+sM7V+RK4d3N/K94+50EfErIch/5OjSW2WtbQLY1xj4=";
     };
-    date = "2025-03-04";
+    date = "2025-05-12";
   };
   game-music-emu = {
     pname = "game-music-emu";
@@ -107,17 +107,17 @@
   };
   lazarus = {
     pname = "lazarus";
-    version = "847dee461c236f6460e66979f3eae77c12885a63";
+    version = "8fb7e576945c0fb4dbad4029cfa8d85222c35007";
     src = fetchgit {
       url = "https://gitlab.com/freepascal.org/lazarus/lazarus";
-      rev = "847dee461c236f6460e66979f3eae77c12885a63";
+      rev = "8fb7e576945c0fb4dbad4029cfa8d85222c35007";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [];
-      sha256 = "sha256-oCFpVP2PXIDVV+geAcehtqCXisGg2uEw2FxoUakC4f4=";
+      sha256 = "sha256-vODUlp9pN+3Qnh5qPxiHs37G1REM6VpQJeUMTCfq9L4=";
     };
-    date = "2025-03-05";
+    date = "2025-05-12";
   };
   libmodplug = {
     pname = "libmodplug";
@@ -135,17 +135,17 @@
   };
   libmpg123 = {
     pname = "libmpg123";
-    version = "6e06824f9bc16f4fc247a00c331b69c1f8148c4e";
+    version = "34fe0b4173da7afcbb9e75d4132437653bc42a29";
     src = fetchgit {
       url = "https://github.com/madebr/mpg123";
-      rev = "6e06824f9bc16f4fc247a00c331b69c1f8148c4e";
+      rev = "34fe0b4173da7afcbb9e75d4132437653bc42a29";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [];
-      sha256 = "sha256-JezLmOf+qsqrv5qtYDYe0Ta7ykyfYVq8cZ0iHL7jvgk=";
+      sha256 = "sha256-8LP3Ic8IYNAxwVghJEluV/flY0NABU1Trgqxqm+FgJo=";
     };
-    date = "2025-01-05";
+    date = "2025-04-21";
   };
   libogg = {
     pname = "libogg";
@@ -182,13 +182,13 @@
   };
   libxmp = {
     pname = "libxmp";
-    version = "libxmp-4.6.2";
+    version = "libxmp-4.6.3";
     src = fetchFromGitHub {
       owner = "libxmp";
       repo = "libxmp";
-      rev = "libxmp-4.6.2";
+      rev = "libxmp-4.6.3";
       fetchSubmodules = false;
-      sha256 = "sha256-AfHathuBmF9OhtTyt8WabZKzFtnAkX1YeiYFF079z80=";
+      sha256 = "sha256-VTjS5bVu+jiswP4GCTxcAdhtVdtopy4A3hxlzIQlZVU=";
     };
   };
   miniupnpc = {
@@ -204,13 +204,13 @@
   };
   openal = {
     pname = "openal";
-    version = "1.24.2";
+    version = "1.24.3";
     src = fetchFromGitHub {
       owner = "kcat";
       repo = "openal-soft";
-      rev = "1.24.2";
+      rev = "1.24.3";
       fetchSubmodules = false;
-      sha256 = "sha256-ECrIkxMACPsWehtJWwTmoYj6hGcsdxwVuTiQywG36Y8=";
+      sha256 = "sha256-VQa3FD9NyvDv/+VbU+5lmV0LteiioJHpRkr1lnCn1g4=";
     };
   };
   openal_android = {
@@ -226,17 +226,17 @@
   };
   opusfile = {
     pname = "opusfile";
-    version = "9d718345ce03b2fad5d7d28e0bcd1cc69ab2b166";
+    version = "d2535e62809079c81f9e5139c0daebe43af97be4";
     src = fetchgit {
       url = "https://github.com/xiph/opusfile";
-      rev = "9d718345ce03b2fad5d7d28e0bcd1cc69ab2b166";
+      rev = "d2535e62809079c81f9e5139c0daebe43af97be4";
       fetchSubmodules = false;
       deepClone = false;
       leaveDotGit = false;
       sparseCheckout = [];
-      sha256 = "sha256-7LvZMtYEkOR89QaQu2S+4xAz7d76CNMrc1ptYG7vUlM=";
+      sha256 = "sha256-/vktWxWfxiQcn3t+zhGainIQINywA/FatFIRsrwvmoI=";
     };
-    date = "2022-11-22";
+    date = "2025-04-19";
   };
   wavpack = {
     pname = "wavpack";
