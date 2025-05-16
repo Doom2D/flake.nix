@@ -5,17 +5,19 @@
 }: let
   buildToolsVersion = "35.0.0";
   cmakeVersion = "3.22.1";
-  ndkVersion = "17.2.4988734";
-  ndkBinutilsVersion = "22.1.7171670";
+  # last version that both has GAS and supports Android 4.1 and ARMv7
+  ndkOldVersion = "17.2.4988734";
+  # newest version for Android 5.0+ and ARMv8
+  ndkModernVersion = "25.2.9519653";
   platformToolsVersion = "35.0.2";
   androidComposition = pkgs.androidenv.composeAndroidPackages {
     buildToolsVersions = [buildToolsVersion "28.0.3"];
     inherit platformToolsVersion;
-    platformVersions = ["34" "31" "28" "21" "16" "14" "9"];
+    platformVersions = ["34" "21" "14"];
     abiVersions = ["armeabi-v7a" "arm64-v8a"];
     cmakeVersions = [cmakeVersion];
     includeNDK = true;
-    ndkVersions = [ndkVersion ndkBinutilsVersion];
+    ndkVersions = [ndkOldVersion ndkModernVersion];
 
     includeSources = false;
     includeSystemImages = false;
@@ -24,8 +26,7 @@
     includeEmulator = false;
   };
   androidSdk = androidComposition.androidsdk;
-  androidNdk = "${androidSdk}/libexec/android-sdk/ndk-bundle";
-  androidNdkBinutils = "${androidSdk}/libexec/android-sdk/ndk/${ndkBinutilsVersion}";
+  androidNdkBinutils = "${androidSdk}/libexec/android-sdk/ndk/${ndkOldVersion}";
   androidPlatform = "14";
 
   #mkArch = androidAbi: clangTriplet: name: fpcCpu: fpcFloat: basename: androidPlatform: let
@@ -38,26 +39,34 @@
     fpcCpu,
     fpcFloat,
     basename,
-    isOldNdk ? false,
+    isNdkBinutilsOld ? false,
+    isNdkOld ? false,
     ndkOldArch ? null,
     targetArg ? [],
     androidPlatform,
   }: let
+    ndkVersion =
+      if isNdkOld
+      then ndkOldVersion
+      else ndkModernVersion;
+    androidNdk = "${androidSdk}/libexec/android-sdk/ndk/${ndkVersion}";
     sysroot = "${androidNdk}/toolchains/llvm/prebuilt/linux-x86_64/sysroot";
     ndkLib =
-      if !isOldNdk
+      if !isNdkOld
       then "${sysroot}/usr/lib/${clangTriplet}/${androidPlatform}"
       else "${androidNdk}/platforms/android-${androidPlatform}/arch-${ndkOldArch}/usr/lib";
     ndkToolchain =
-      if !isOldNdk
-      then "${androidNdk}/toolchains/llvm/prebuilt/linux-x86_64/bin"
+      if !isNdkOld
+      then "${androidNdk}/toolchains /llvm/prebuilt/linux-x86_64/bin"
       else "${androidNdk}/toolchains/${clangTriplet}-4.9/prebuilt/linux-x86_64/bin";
-    ndkBinutilsToolchain = "${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/bin";
+    ndkBinutilsToolchain =
+      if !isNdkBinutilsOld
+      then "${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/${clangTriplet}/bin"
+      else "${androidNdkBinutils}/toolchains/${clangTriplet}-4.9/prebuilt/linux-x86_64/bin";
     binutilsPrefix =
-      if !isOldNdk
-      then "${androidNdkBinutils}/toolchains/llvm/prebuilt/linux-x86_64/${clangTriplet}/bin/"
-      else "${ndkToolchain}/${clangTriplet}-";
-    pretty = "Android ${androidNativeBundleAbi}, platform level ${androidPlatform}, NDK ${ndkVersion}";
+      if !isNdkBinutilsOld
+      then "${ndkBinutilsToolchain}/"
+      else "${ndkBinutilsToolchain}/${clangTriplet}-";
   in rec {
     inherit androidNativeBundleAbi;
     isAndroid = true;
@@ -105,10 +114,16 @@
     fpcFloat,
     basename,
     targetArg,
-    isOldNdk ? false,
+    isNdkOld ? false,
+    isNdkBinutilsOld ? false,
     ndkOldArch ? false,
     androidPlatform,
   }: let
+    ndkVersion =
+      if isNdkOld
+      then ndkOldVersion
+      else ndkModernVersion;
+    androidNdk = "${androidSdk}/libexec/android-sdk/ndk/${ndkVersion}";
     # NDK r17 has a bug with ncurses5.
     # https://github.com/android/ndk/issues/574
     # This is a workaround.
@@ -130,7 +145,7 @@
       cmake = let
         cmakeFlags = lib.concatStringsSep " " (
           [
-            (lib.optionalString (!isOldNdk) "-DCMAKE_POLICY_DEFAULT_CMP0057=NEW")
+            (lib.optionalString (!isNdkOld) "-DCMAKE_POLICY_DEFAULT_CMP0057=NEW")
             "-DCMAKE_TOOLCHAIN_FILE=${androidNdk}/build/cmake/android.toolchain.cmake"
             "-DANDROID_ABI=${androidNativeBundleAbi}"
             "-DANDROID_PLATFORM=android-${androidPlatform}"
@@ -140,7 +155,7 @@
           ]
           #++ lib.optionals (CPU_TARGET == "arm") ["-DANDROID_ARM_NEON=FALSE"]
         );
-      in "${lib.optionalString isOldNdk "export LD_LIBRARY_PATH=\"${ncursesFixed}/lib\";"} ${pkgs.cmake}/bin/cmake ${cmakeFlags}";
+      in "${lib.optionalString isNdkOld "export LD_LIBRARY_PATH=\"${ncursesFixed}/lib\";"} ${pkgs.cmake}/bin/cmake ${cmakeFlags}";
     };
   in
     lib.recursiveUpdate
@@ -162,7 +177,8 @@ in {
     basename = "crossa64";
     fpcCpu = "ARMV8";
     fpcFloat = "VFP";
-    isOldNdk = true;
+    isNdkBinutilsOld = true;
+    isNdkOld = true;
     ndkOldArch = "arm64";
     targetArg = [];
     androidPlatform = let
@@ -182,7 +198,8 @@ in {
     basename = "crossarm";
     fpcCpu = "ARMV7A";
     fpcFloat = "VFPV3";
-    isOldNdk = true;
+    isNdkBinutilsOld = true;
+    isNdkOld = true;
     ndkOldArch = "arm";
     targetArg = ["-CfVFPV3_D16" "-CaEABI"];
     androidPlatform = let
