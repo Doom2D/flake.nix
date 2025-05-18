@@ -11,27 +11,70 @@
     stdenv,
     gawk,
     fpc,
-    glibc,
+    musl,
     binutils,
   }: let
     default = ["NOGDB=1" "FPC=\"${fpc}/bin/fpc\"" "PP=\"${fpc}/bin/fpc\"" "INSTALL_PREFIX=$out"];
+    ver = "1";
+    linker = "ld-musl-x86_64.so.${ver}";
+    arch = "";
+    # /lib/ld-linux\.so\.. for 32-bit
+    # /lib64/ld-linux-x86-64\.so\.. for 64-bit
+    muslBase = pkgs.pkgsCross.musl64.musl;
+    muslShim = pkgs.stdenvNoCC.mkDerivation {
+      name = "muslWithStub";
+      src = null;
+      dontUnpack = true;
+      dontFixup = true;
+      dontStrip = true;
+      installPhase = ''
+        mkdir -p $out/{lib,lib64}
+        ${pkgs.xorg.lndir}/bin/lndir ${muslBase}/lib $out/lib64
+        ln -s ${muslBase}/lib/ld-musl-x86_64.so.1 $out/lib64/ld-linux-x86-64.so.2
+        ln -s ${muslBase}/lib/ld-musl-x86_64.so.1 $out/lib64/ld-linux-x86-64.so.1
+        ln -s ${muslBase}/lib/ld-musl-x86_64.so.1 $out/lib/ld-linux-x86-64.so.1
+        ln -s ${muslBase}/lib/ld-musl-x86_64.so.1 $out/lib/ld-linux-x86-64.so.2
+      '';
+    };
+    muslShared = pkgs.symlinkJoin {
+      name = "muslWithLd";
+      paths = [pkgs.pkgsCross.musl64.musl muslShim];
+    };
+    muslLinker =
+      pkgs.writeShellScript "ld.bfd"
+      ''
+        for arg in "$@"; do
+          if [ "$arg" != "--shared" ]; then
+            new_args+=("$arg")
+            echo "Deleted --shared"
+          fi
+        done
+        echo "Arguments after removing --delete: ''${new_args[@]}"
+        ${pkgs.pkgsCross.musl64.binutils}/bin/ld.bfd --static -static ''${new_args[@]} --static -static
+      '';
+    glibc = pkgs.glibc;
+    libcLib = "${glibc}/lib";
+    ld = "${glibc}/lib64/ld-linux-x86-64.so\.2";
   in
-    stdenv.mkDerivation (finalAttrs: rec {
+    pkgs.pkgsCross.gnu64.stdenv.mkDerivation (finalAttrs: rec {
       version = "3.3.1";
       pname = "fpc";
       src = pins.fpc.src;
 
-      nativeBuildInputs = [binutils gawk fpc];
-      inherit glibc;
+      nativeBuildInputs = [];
 
-      patches = [
-        ./mark-paths-trunk.patch
-      ];
+      prePatch = ''
+        # Use correct linker path for produced binaries
+        # Taken from Alpine Linux
+        sed -i \
+          -e "s,/lib64/ld-linux-x86-64\.so\..,${ld}," \
+          -e "s,'=/lib64','=${libcLib}'," \
+          -e "s,'=/lib','=${libcLib}'," \
+          compiler/systems/t_linux.pas
+      '';
 
+      /*
       postPatch = ''
-        # substitute the markers set by the mark-paths patch
-        substituteInPlace compiler/systems/t_linux.pas --subst-var-by dynlinker-prefix "${glibc}"
-        substituteInPlace compiler/systems/t_linux.pas --subst-var-by syslibpath "${glibc}/lib"
         # Replace the `codesign --remove-signature` command with a custom script, since `codesign` is not available
         # in nixpkgs
         # Remove the -no_uuid strip flag which does not work on llvm-strip, only
@@ -43,9 +86,10 @@
           --replace "ifneq (\$(CODESIGN),)" "ifeq (\$(OS_TARGET), darwin)" \
           --replace "-no_uuid" ""
       '';
+      */
 
       buildPhase = ''
-        make all ${lib.concatStringsSep " " default}
+        make all ${lib.concatStringsSep " " default} OPT="-fPIC" CROSSOPT="-fPIC"
       '';
 
       installPhase =
@@ -56,6 +100,10 @@
           for i in $out/lib/fpc/*/ppc*; do
             ln -fs $i $out/bin/$(basename $i)
           done
+
+          #${pkgs.xorg.lndir}/bin/lndir ${pkgs.pkgsCross.musl64.gcc}/bin $out/lib/fpc/${finalAttrs.version}
+          #rm $out/lib/fpc/${finalAttrs.version}/ld.bfd
+          #ln -s ${muslLinker} $out/lib/fpc/${finalAttrs.version}/ld.bfd
 
           mkdir -p $out/lib/fpc/etc/
           $out/lib/fpc/*/samplecfg $out/lib/fpc/${version} $out/lib/fpc/etc/
@@ -93,47 +141,40 @@
         lib.concatStringsSep " " (lib.mapAttrsToList (k: v: "${k}=${v}") fpcArchAttrs.makeArgs);
     in
       default' + " " + cross;
+    isSameArch = true;
   in
     stdenv.mkDerivation (finalAttrs: rec {
       version = fpc.version;
       pname = "fpc";
       src = fpc.src;
 
-      nativeBuildInputs = [findutils binutils gawk fpc];
-      glibc = fpc.glibc;
+      nativeBuildInputs = [];
 
       patches = fpc.patches;
 
-      postPatch = ''
-        # substitute the markers set by the mark-paths patch
-        substituteInPlace compiler/systems/t_linux.pas --subst-var-by dynlinker-prefix "${glibc}"
-        substituteInPlace compiler/systems/t_linux.pas --subst-var-by syslibpath "${glibc}/lib"
-        # Replace the `codesign --remove-signature` command with a custom script, since `codesign` is not available
-        # in nixpkgs
-        # Remove the -no_uuid strip flag which does not work on llvm-strip, only
-        # Apple strip.
-        substituteInPlace compiler/Makefile \
-          --replace \
-            "\$(CODESIGN) --remove-signature" \
-            "${fpc}/remove-signature.sh}" \
-          --replace "ifneq (\$(CODESIGN),)" "ifeq (\$(OS_TARGET), darwin)" \
-          --replace "-no_uuid" ""
-      '';
+      buildPhase =
+        ''
 
-      buildPhase = ''
-        PATH="$PATH:${path}" \
-          make all ${makeArgs}
-      '';
+        ''
+        + (lib.optionalString (!isSameArch) ''
+          PATH="$PATH:${path}" \
+            make all ${makeArgs}
+        '');
 
       installPhase =
         ''
-          make crossinstall ${makeArgs} ;
+          mkdir -p $out/
         ''
-        + ''
-          for i in $out/lib/fpc/${finalAttrs.version}/ppc*; do
-            ln -fs $i $out/bin/$(basename $i)
-          done
-        '';
+        + lib.optionalString (!isSameArch) (
+          ''
+            make crossinstall ${lib.traceVal makeArgs}
+          ''
+          + ''
+            for i in $out/lib/fpc/${finalAttrs.version}/ppc*; do
+              ln -fs $i $out/bin/$(basename $i)
+            done
+          ''
+        );
 
       meta = with lib; {
         description = "Free Pascal Compiler from a source distribution";
@@ -329,7 +370,7 @@ in rec {
       sha256 = "sha256-MBrcthXl6awecRe8CnMpPmLAsVhdMZHQD8GBukiuqeE=";
     };
 
-    patches = [./mark-paths-3_2_2.patch];
+    #patches = [./mark-paths-3_2_2.patch];
   });
 
   fpc-3_0_4 = let

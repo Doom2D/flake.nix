@@ -7,6 +7,7 @@
   mkExecutablePath,
   mkGamePath,
   mkZip,
+  mkPath,
   mkApple,
   mkLicenses,
   mkAndroidApk,
@@ -187,7 +188,11 @@
       executables = callPackage mkExecutablePath rec {
         byArchPkgsAttrs = {
           "${arch}" = {
-            sharedLibraries = let game = lib.map (drv: drv.out) defaultExecutable.buildInputs; editor = archAttrs.editor.buildInputs or []; in lib.filter (x: !builtins.isNull x) (game ++ editor);
+            sharedLibraries = let
+              game = lib.map (drv: drv.out) defaultExecutable.buildInputs;
+              editor = archAttrs.editor.buildInputs or [];
+            in
+              lib.filter (x: !builtins.isNull x) (game ++ editor);
             majorPlatform = archAttrs.infoAttrs.majorPlatform;
             doom2df = defaultExecutable;
             doom2dfHeadless = headlessDrv;
@@ -206,9 +211,17 @@
         if (lib.lists.elem "zip" archAttrs.infoAttrs.bundleFormats)
         then zip
         else null;
+      path = let
+        path = callPackage mkPath {
+          inherit assets;
+          executables = executables.override {asZip = false;};
+          licenses = licenses.override {asZip = false;};
+        };
+      in
+        path;
     in
       lib.filterAttrs (n: v: !builtins.isNull v) {
-        inherit zip;
+        inherit zip path executables;
       };
   in {
     __archPkgs = archAttrs;
@@ -222,11 +235,13 @@
       withEditor = false;
       toLower = true;
       flexuiDistro = lib.any (a: a.infoAttrs.bundle.holmes == "Enable") (lib.attrValues executablesAttrs);
-      withDistroContent = true;
+      withDistroContent = false;
       distroContent = d2df-distro-content;
       distroMidiBanks = d2df-distro-soundfont;
+      /*
       withDistroGus = lib.any (a: a.infoAttrs.bundle.assets.midiBank == "gus") (lib.attrValues macArches);
       withDistroSoundfont = lib.any (a: a.infoAttrs.bundle.assets.midiBank == "soundfont") (lib.attrValues macArches);
+      */
     };
     licenses = callPackage mkLicenses {inherit assets executables;};
     executables = callPackage mkExecutablePath {
@@ -297,11 +312,11 @@
       assets = defaultAssetsPath.override {
         withEditor = false;
         toLower = true;
-        withDistroContent = true;
+        withDistroContent = false;
         flexuiDistro = false;
         distroContent = d2df-distro-content;
         distroMidiBanks = d2df-distro-soundfont;
-        withDistroGus = true;
+        withDistroGus = false;
       };
       executables = gameExecutablePath;
       licenses = callPackage mkLicenses {inherit assets executables;};

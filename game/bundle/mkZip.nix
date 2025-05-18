@@ -9,6 +9,7 @@
   macdylibbundler,
   rcodesign,
   findutils,
+  asZip ? true,
 }: let
   first = (lib.head (lib.attrsToList executables.meta.arches)).value;
   isDarwin = first.majorPlatform == "macOS";
@@ -56,8 +57,16 @@ in
         rcodesign sign build/Doom2DF
         find build -iname '*.dylib' -exec rcodesign sign {} \;
       ''
-      + ''
-        7zz a -y -mtm -ssp -tzip out.zip -w build/.
-        mv out.zip $out
-      '';
+      + (
+        if asZip
+        then ''
+          7zz a -y -mtm -ssp -tzip out.zip -w build/.
+          mv out.zip $out
+        ''
+        else ''
+          mv build/ $out
+        ''
+      );
+
+    meta.mainProgram = "Doom2DF";
   })

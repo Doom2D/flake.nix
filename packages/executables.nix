@@ -17,6 +17,9 @@
   mac = (import ../cross/mac) {
     inherit pkgs lib pins osxcross;
   };
+  linux = (import ../cross/linux) {
+    inherit pkgs lib pins;
+  };
   universal = rec {
     fpc-trunk = fpcPkgs.fpc-trunk;
     fpc-3_2_2 = fpcPkgs.fpc-3_2_2;
@@ -110,8 +113,7 @@
             ;
         };
       };
-    in
-      (lib.recursiveUpdate archAttrs gamePkgs);
+    in (lib.recursiveUpdate archAttrs gamePkgs);
   in let
     res =
       (lib.mapAttrs fromCrossPkgsAttrs crossPkgs) // {universal = universal;};
@@ -121,4 +123,4 @@
     res
     {mingw64.editor = res.mingw32.editor;};
 in
-  f (android // mingw // mac)
+  f (android // mingw // mac // linux)

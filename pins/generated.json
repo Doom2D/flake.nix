@@ -13,12 +13,12 @@
             "name": null,
             "owner": "libsdl-org",
             "repo": "SDL",
-            "rev": "release-2.32.2",
-            "sha256": "sha256-Gtg8G1tRouGZbes1KhsXpYbItpNHYqJCiQKW/L77b+U=",
+            "rev": "release-2.32.4",
+            "sha256": "sha256-4yUJkttUAbDC/5IdcCFY5ZTIG1qsxEEOjTTuplXV/p4=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "release-2.32.2"
+        "version": "release-2.32.4"
     },
     "SDL2_android": {
         "cargoLocks": null,
@@ -64,7 +64,7 @@
     },
     "dfwad": {
         "cargoLocks": null,
-        "date": "2025-01-14",
+        "date": "2025-03-05",
         "extract": null,
         "name": "dfwad",
         "passthru": null,
@@ -74,13 +74,13 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "6f1f5578319833eed6c2d14a4edb3acadef72bd6",
-            "sha256": "sha256-ywsHzIW78U/C+jAsdSQ3WyGraA6t3E9BeDn14aUgCjk=",
+            "rev": "796f2fdebd21c46e741ef28cecb723b1c35398d5",
+            "sha256": "sha256-uCUVWF/GujuuzO/jBMqohUR75BBaSLYc3xF6UQO7iRY=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/Doom2D/dfwad"
         },
-        "version": "6f1f5578319833eed6c2d14a4edb3acadef72bd6"
+        "version": "796f2fdebd21c46e741ef28cecb723b1c35398d5"
     },
     "enet": {
         "cargoLocks": null,
@@ -124,7 +124,7 @@
     },
     "fpc": {
         "cargoLocks": null,
-        "date": "2025-03-04",
+        "date": "2025-05-02",
         "extract": null,
         "name": "fpc",
         "passthru": null,
@@ -134,13 +134,13 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "d34d5c545944537cf458f5d388205cb88f3ee24a",
-            "sha256": "sha256-ggiI/2GxqhB5kN1nAMd2kghnDAEU3LxU7YG8vqeCgNA=",
+            "rev": "5cf2fac78cfccd72dd2ed6f6dbcf480edc680f46",
+            "sha256": "sha256-VKR6Cc0ASDjURX93EeOrblrxsTEiaof/2+DmQ6EBaQw=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://gitlab.com/freepascal.org/fpc/source"
         },
-        "version": "d34d5c545944537cf458f5d388205cb88f3ee24a"
+        "version": "5cf2fac78cfccd72dd2ed6f6dbcf480edc680f46"
     },
     "game-music-emu": {
         "cargoLocks": null,
@@ -165,7 +165,7 @@
     },
     "lazarus": {
         "cargoLocks": null,
-        "date": "2025-03-05",
+        "date": "2025-05-03",
         "extract": null,
         "name": "lazarus",
         "passthru": null,
@@ -175,13 +175,13 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "847dee461c236f6460e66979f3eae77c12885a63",
-            "sha256": "sha256-oCFpVP2PXIDVV+geAcehtqCXisGg2uEw2FxoUakC4f4=",
+            "rev": "f2e1746dfa613962dcbd70c387a9195d0cf5e72f",
+            "sha256": "sha256-2Awc+9MMECN0vGa3wZtKgtjGI0xKArbERWIlF7HZdAQ=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://gitlab.com/freepascal.org/lazarus/lazarus"
         },
-        "version": "847dee461c236f6460e66979f3eae77c12885a63"
+        "version": "f2e1746dfa613962dcbd70c387a9195d0cf5e72f"
     },
     "libmodplug": {
         "cargoLocks": null,
@@ -205,7 +205,7 @@
     },
     "libmpg123": {
         "cargoLocks": null,
-        "date": "2025-01-05",
+        "date": "2025-04-21",
         "extract": null,
         "name": "libmpg123",
         "passthru": null,
@@ -215,13 +215,13 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "6e06824f9bc16f4fc247a00c331b69c1f8148c4e",
-            "sha256": "sha256-JezLmOf+qsqrv5qtYDYe0Ta7ykyfYVq8cZ0iHL7jvgk=",
+            "rev": "34fe0b4173da7afcbb9e75d4132437653bc42a29",
+            "sha256": "sha256-8LP3Ic8IYNAxwVghJEluV/flY0NABU1Trgqxqm+FgJo=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/madebr/mpg123"
         },
-        "version": "6e06824f9bc16f4fc247a00c331b69c1f8148c4e"
+        "version": "34fe0b4173da7afcbb9e75d4132437653bc42a29"
     },
     "libogg": {
         "cargoLocks": null,
@@ -342,12 +342,12 @@
             "name": null,
             "owner": "kcat",
             "repo": "openal-soft",
-            "rev": "1.24.2",
-            "sha256": "sha256-ECrIkxMACPsWehtJWwTmoYj6hGcsdxwVuTiQywG36Y8=",
+            "rev": "1.24.3",
+            "sha256": "sha256-VQa3FD9NyvDv/+VbU+5lmV0LteiioJHpRkr1lnCn1g4=",
             "sparseCheckout": [],
             "type": "github"
         },
-        "version": "1.24.2"
+        "version": "1.24.3"
     },
     "openal_android": {
         "cargoLocks": null,
@@ -372,7 +372,7 @@
     },
     "opusfile": {
         "cargoLocks": null,
-        "date": "2022-11-22",
+        "date": "2025-04-19",
         "extract": null,
         "name": "opusfile",
         "passthru": null,
@@ -382,13 +382,13 @@
             "fetchSubmodules": false,
             "leaveDotGit": false,
             "name": null,
-            "rev": "9d718345ce03b2fad5d7d28e0bcd1cc69ab2b166",
-            "sha256": "sha256-7LvZMtYEkOR89QaQu2S+4xAz7d76CNMrc1ptYG7vUlM=",
+            "rev": "d2535e62809079c81f9e5139c0daebe43af97be4",
+            "sha256": "sha256-/vktWxWfxiQcn3t+zhGainIQINywA/FatFIRsrwvmoI=",
             "sparseCheckout": [],
             "type": "git",
             "url": "https://github.com/xiph/opusfile"
         },
-        "version": "9d718345ce03b2fad5d7d28e0bcd1cc69ab2b166"
+        "version": "d2535e62809079c81f9e5139c0daebe43af97be4"
     },
     "wavpack": {
         "cargoLocks": null,

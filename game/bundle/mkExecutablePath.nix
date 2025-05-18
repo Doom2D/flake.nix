@@ -7,6 +7,7 @@
   gameDate ? null,
   editorDate ? null,
   withHeadless ? false,
+  asZip ? true,
   gnused,
   gawk,
   zip,
@@ -26,6 +27,7 @@ stdenvNoCC.mkDerivation {
   dontPatchELF = true;
   dontStrip = true;
   dontFixup = true;
+  dontShrink = true;
 
   nativeBuildInputs = [gawk gnused zip findutils outils coreutils _7zz];
 
@@ -87,11 +89,18 @@ stdenvNoCC.mkDerivation {
     ${lib.concatStringsSep "\n" (lib.map (x: copyEachArch x.name x.value) (lib.attrsToList byArchPkgsAttrs))}
   '';
 
-  installPhase = ''
-    cd /build
-    7zz a -y -mtm -ssp -tzip out.zip -w build/.
-    mv out.zip $out
-  '';
+  installPhase =
+    if asZip
+    then ''
+      cd /build
+      7zz a -y -mtm -ssp -tzip out.zip -w build/.
+      mv out.zip $out
+    ''
+    else ''
+      cd /build
+      mkdir -p $out
+      cp build/* $out
+    '';
 
   meta = {
     arches = byArchPkgsAttrs;
@@ -101,7 +110,7 @@ stdenvNoCC.mkDerivation {
       files =
         lib.map (x: {
           inherit (x) pname;
-          license = x.meta.licenseFiles;
+          license = x.meta.licenseFiles or [];
         })
         all;
     in

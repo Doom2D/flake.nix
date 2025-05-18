@@ -4,9 +4,11 @@
   lib,
   cmake,
   arch,
+  stdenv ? pkgs.stdenv,
 }: let
   _cmakeDrv = {
     cmake,
+    stdenv,
     arch,
   }: {
     pname,
@@ -19,7 +21,7 @@
     cmakeExtraArgs ? "",
     extraCmds ? "",
   }:
-    pkgs.stdenvNoCC.mkDerivation (finalAttrs: {
+    stdenv.mkDerivation (finalAttrs: {
       inherit src;
       pname = "${pname}";
       version = "${version}-${arch}";
@@ -37,9 +39,7 @@
         cd build
         ${cmakePrefix} \
           ${cmake} \
-            -DBUILD_SHARED_LIBS=ON \
             -DCMAKE_INSTALL_PREFIX=$out \
-            -DCMAKE_CROSSCOMPILING=ON \
             ${cmakeExtraArgs} \
             ..
         make -j$(nproc)
@@ -48,7 +48,7 @@
 
       installPhase = ''
         runHook preInstall
-        mkdir -p $out/lib
+        mkdir -p $out/{lib,lib64}
         make install
         runHook postInstall
       '';
@@ -57,7 +57,7 @@
         inherit licenseFiles;
       };
     });
-  buildCmakeProject = _cmakeDrv {inherit cmake arch;};
+  buildCmakeProject = _cmakeDrv {inherit cmake arch stdenv;};
   source = (import ./_source.nix {inherit pins;}) {
     cmakeDrv = buildCmakeProject;
   };
@@ -81,12 +81,18 @@ in rec {
           --replace 'ALooper_pollAll' 'ALooper_pollOnce' || :
     '';
   };
-  libogg =
-    source.libogg {
-    };
-  libopus =
-    source.libopus {
-    };
+  libogg = source.libogg {
+    # Set new policy so that it doesn't ignore BUILD_SHARED_LIBS
+    extraCmds = ''
+      sed -i '2s/^/cmake_policy(SET CMP0077 NEW)\n/' CMakeLists.txt
+    '';
+  };
+  libopus = source.libopus {
+    # Set new policy so that it doesn't ignore BUILD_SHARED_LIBS
+    extraCmds = ''
+      sed -i '2s/^/cmake_policy(SET CMP0077 NEW)\n/' CMakeLists.txt
+    '';
+  };
   libxmp =
     source.libxmp {
     };
@@ -95,6 +101,7 @@ in rec {
       cmakeExtraArgs = lib.concatStringsSep " " [
         "-DALSOFT_UTILS=off"
         "-DALSOFT_EXAMPLES=off"
+        "-DALSOFT_UPDATE_BUILD_VERSION=off"
         "-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH"
       ];
     })
@@ -112,6 +119,10 @@ in rec {
         "-DOGG_LIBRARY=${findLib libogg "libogg"}"
         "-DOGG_INCLUDE_DIR=${libogg}/include/"
       ];
+      # Set new policy so that it doesn't ignore BUILD_SHARED_LIBS
+      extraCmds = ''
+        sed -i '2s/^/cmake_policy(SET CMP0077 NEW)\n/' CMakeLists.txt
+      '';
     })
     .overrideAttrs (finalAttrs: {
       buildInputs = finalAttrs.buildInputs or [] ++ [pkgs.gnused];
@@ -127,7 +138,7 @@ in rec {
   };
   libmpg123 = source.libmpg123 {
     cmakeListsPath = "ports/cmake";
-    cmakeExtraArgs = "-DBUILD_LIBOUT123=off";
+    cmakeExtraArgs = "-DBUILD_LIBOUT123=off -DBUILD_PROGRAMS=off";
   };
   libmodplug =
     source.libmodplug {
@@ -161,7 +172,16 @@ in rec {
   wavpack = source.wavpack {
     # fails on armv7 32 bit
     # See https://github.com/curl/curl/pull/13264
-    cmakeExtraArgs = "-DCMAKE_REQUIRED_FLAGS=\"-D_FILE_OFFSET_BITS=64\"";
+    cmakeExtraArgs = lib.concatStringsSep " " [
+      "-DWAVPACK_BUILD_PROGRAMS=off"
+      "-DWAVPACK_BUILD_COOLEDIT_PLUGIN=off"
+      "-DWAVPACK_BUILD_WINAMP_PLUGIN=off"
+      "-DCMAKE_REQUIRED_FLAGS=\"-D_FILE_OFFSET_BITS=64\""
+    ];
+    # Set new policy so that it doesn't ignore BUILD_SHARED_LIBS
+    extraCmds = ''
+      sed -i '2s/^/cmake_policy(SET CMP0077 NEW)\n/' CMakeLists.txt
+    '';
   };
 
   opusfile =
@@ -194,7 +214,9 @@ in rec {
       nativeBuildInputs = [pkgs.pkg-config];
     });
 
-  SDL2_mixer =
+  SDL2_mixer = let
+    shared = "on";
+  in
     (source.SDL2_mixer {
       cmakeExtraArgs = let
         libs = pkgs.symlinkJoin {
@@ -212,25 +234,25 @@ in rec {
         };
       in
         lib.concatStringsSep " " [
-          "-DBUILD_SHARED_LIBS=on"
           "-DSDL2MIXER_VENDORED=off"
+          "-DSDL2MIXER_SAMPLES=off"
 
           "-DSDL2MIXER_VORBIS=VORBISFILE"
-          "-DSDL2MIXER_VORBIS_VORBISFILE_SHARED=off"
+          "-DSDL2MIXER_VORBIS_VORBISFILE_SHARED=${shared}"
           "-DVorbis_vorbisfile_INCLUDE_PATH=${libvorbis}/include"
           "-DVorbis_vorbisfile_LIBRARY=${findLib libvorbis "libvorbisfile"}"
 
           "-DSDL2MIXER_MP3=on"
           "-DSDL2MIXER_MP3_MPG123=on"
-          "-DSDL2MIXER_MP3_MPG123_SHARED=off"
+          "-DSDL2MIXER_MP3_MPG123_SHARED=${shared}"
 
           "-DSDL2MIXER_OPUS=on"
-          "-DSDL2MIXER_OPUS_SHARED=off"
+          "-DSDL2MIXER_OPUS_SHARED=${shared}"
           "-DOpusFile_LIBRARY=${findLib opusfile "libopusfile"}"
           "-DOpusFile_INCLUDE_PATH=${opusfile}/include"
 
           "-DSDL2MIXER_GME=on"
-          "-DSDL2MIXER_GME_SHARED=off"
+          "-DSDL2MIXER_GME_SHARED=${shared}"
           "-Dgme_LIBRARY=${findLib game-music-emu "libgme"}"
           "-Dgme_INCLUDE_PATH=${game-music-emu}/include"
 
@@ -244,12 +266,12 @@ in rec {
           "-DSDL2MIXER_MOD=on"
           "-DSDL2MIXER_MOD_MODPLUG=off"
           "-DSDL2MIXER_MOD_XMP=on"
-          "-DSDL2MIXER_MOD_XMP_SHARED=off"
+          "-DSDL2MIXER_MOD_XMP_SHARED=${shared}"
 
           "-DCMAKE_FIND_ROOT_PATH_MODE_PACKAGE=BOTH"
           "-DCMAKE_PREFIX_PATH=${libs}"
           "-DCMAKE_FIND_ROOT_PATH=${libs}"
-          "-DSDL2MIXER_MOD_XMP_SHARED=off"
+          "-DSDL2MIXER_MOD_XMP_SHARED=${shared}"
         ];
     })
     .overrideAttrs (prev: {

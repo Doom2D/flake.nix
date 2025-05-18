@@ -15,7 +15,6 @@
   withSDL2 ? false,
   SDL2 ? null,
   disableGraphics ? false,
-  libGL ? null,
   withOpenGLES ? false,
   withOpenGL2 ? false,
   disableSound ? false,
@@ -47,6 +46,9 @@
   libmodplug ? null,
   withFmod ? false,
   fmodex ? null,
+  isLinux ? true,
+  libX11,
+  libGL,
   ...
 }: let
   optional = lib.optional;
@@ -137,8 +139,9 @@ in
 
     patches = [];
     dontStrip = true;
-    dontPatchELF = true;
-    dontFixup = true;
+    dontPatchELF = !isLinux;
+    dontFixup = !isLinux;
+    dontShrink = !isLinux;
     enableDebugging = true;
 
     env = {
@@ -149,21 +152,25 @@ in
     nativeBuildInputs =
       [
         fpc
-        enet
       ]
-      ++ optional (withOpenAL && nativeOpenAL) openal
+      ++ lib.optionals isLinux [autoPatchelfHook]
       ++ optional withSDL1 SDL
-      ++ optional (soundActuallyUsed && withSDL1_mixer) SDL_mixer
+      ++ optional withSDL1_mixer SDL_mixer
       ++ optional withSDL2 SDL2
-      ++ optional (soundActuallyUsed && withSDL2_mixer) SDL2_mixer
-      ++ optional withLibXmp libxmp
+      ++ optional withSDL2_mixer SDL2_mixer
+      ++ optional (withOpenAL && nativeOpenAL) openal
+      ++ optional (soundActuallyUsed && withLibXmp) libxmp
       ++ optional (soundActuallyUsed && withMpg123) libmpg123
-      ++ optionals (soundActuallyUsed && withOpus) [opusfile libopus]
+      ++ optionals (soundActuallyUsed && withOpus) [libopus opusfile]
       ++ optionals (soundActuallyUsed && withVorbis) [libvorbis libogg]
       ++ optionals (soundActuallyUsed && withFluidsynth) [fluidsynth]
       ++ optionals (soundActuallyUsed && withGme) [game-music-emu]
       ++ optionals (soundActuallyUsed && withModplug) [libmodplug]
-      ++ optional withMiniupnpc miniupnpc;
+      ++ optionals withFmod [fmodex]
+      ++ optional withMiniupnpc miniupnpc
+      ++ optional (isLinux && withSDL2) libX11
+      ++ optional (isLinux && !disableGraphics) libGL;
+        
 
     buildInputs =
       [
@@ -182,7 +189,9 @@ in
       ++ optionals (soundActuallyUsed && withGme) [game-music-emu]
       ++ optionals (soundActuallyUsed && withModplug) [libmodplug]
       ++ optionals withFmod [fmodex]
-      ++ optional withMiniupnpc miniupnpc;
+      ++ optional withMiniupnpc miniupnpc
+      ++ optional (isLinux && withSDL2) libX11
+      ++ optional (isLinux && !disableGraphics) libGL;
 
     buildPhase = ''
       pushd src/game
@@ -204,15 +213,23 @@ in
     '';
 
     installPhase =
-      if buildAsLibrary
-      then ''
-        mkdir -p $out/lib
-        cp src/game/bin/lib${basename}.so $out/lib
+      (
+        if buildAsLibrary
+        then ''
+          mkdir -p $out/lib
+          cp src/game/bin/lib${basename}.so $out/lib
+        ''
+        else ''
+          mkdir -p $out/bin
+          cp src/game/bin/${basename} $out/bin
+        ''
+      )
+      + lib.optionalString isLinux ''
+        patchelf \
+          --add-needed ${libGL}/lib/libGL.so.1 \
+          $out/bin/${basename}
       ''
-      else ''
-        mkdir -p $out/bin
-        cp src/game/bin/${basename} $out/bin
-      '';
+    ;
 
     meta = {
       licenseFiles = ["${src}/COPYING"];

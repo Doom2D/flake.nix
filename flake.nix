@@ -2,8 +2,13 @@
   description = "Doom2D flake";
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
+    nixpkgs-stable.url = "github:NixOS/nixpkgs/nixos-24.11";
     flake-utils.url = "github:numtide/flake-utils";
     nix-github-actions.url = "github:nix-community/nix-github-actions";
+    nix-bundle = {
+      url = "github:nix-community/nix-bundle";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     osxcross = {
       url = "github:polybluez/osxcross/framework";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,7 +19,7 @@
       flake = false;
     };
     Doom2D-Forever = {
-      url = "git+https://github.com/Doom2D/Doom2D-Forever?submodules=1";
+      url = "git+file:/home/nixos/Git/Doom2D-Forever?submodules=1";
       flake = false;
     };
     d2df-editor = {
@@ -33,8 +38,10 @@
   outputs = inputs @ {
     self,
     nixpkgs,
+    nixpkgs-stable,
     flake-utils,
     nix-github-actions,
+    nix-bundle,
     osxcross,
     DF-Assets,
     Doom2D-Forever,
@@ -51,6 +58,9 @@
           allowUnsupportedSystem = true;
         };
         overlays = [
+          (final: prev: {
+            pathsFromGraph = let oldPkgs = import inputs.nixpkgs-stable {inherit (final) system;}; in oldPkgs.pathsFromGraph;
+          })
           (final: prev: {
             wadcvt = final.callPackage d2dfPkgs.wadcvt {
               inherit Doom2D-Forever;
@@ -94,6 +104,40 @@
         inherit (pkgs) fetchgit fetchurl fetchFromGitHub dockerTools;
       };
     in {
+      buildInputs = {
+        inherit nix-bundle;
+      };
+      bundlers = let
+        nix-bundle-fun = {
+          drv,
+          programPath ? pkgs.lib.getExe drv,
+        }: let
+          nixpkgs = inputs.nixpkgs-stable.legacyPackages.${system};
+          nix-bundle = import inputs.nix-bundle {inherit nixpkgs;};
+          nix-user-chroot = nix-bundle.nix-user-chroot.overrideAttrs (finalAttrs: prevAttrs: {
+            buildInputs = [pkgs.stdenv.cc.cc.lib];
+            postFixup =
+              prevAttrs.postFixup
+              + ''
+                patchelf --add-needed ${pkgs.stdenv.cc.cc.lib}/lib/libstdc++.so.6 \
+                  $out/bin/nix-user-chroot
+              '';
+          });
+          script = nixpkgs.writeScript "startup" ''
+            #!/bin/sh
+            .${lib.trace "${nix-user-chroot}" nix-user-chroot}/bin/nix-user-chroot -n ./nix -- ${programPath} "$@"
+          '';
+        in
+          nix-bundle.makebootstrap {
+            drvToBundle = drv;
+            targets = [script];
+            startup = ".${builtins.unsafeDiscardStringContext script} '\"$@\"'";
+          };
+      in {
+        default = inputs.self.bundlers.${system}.nix-bundle;
+        nix-bundle = drv: nix-bundle-fun {inherit drv;};
+        nix2appimage = import "${nix-bundle}/appimage-top.nix" {nixpkgs' = lib.recursiveUpdate nixpkgs {inherit (nixpkgs-stable) pathsFromGraph; };};
+      };
       dfInputs = {
         inherit Doom2D-Forever d2df-editor DF-Assets d2df-distro-content d2df-distro-soundfont;
       };
@@ -139,7 +183,7 @@
           inherit (pkgs) callPackage;
           inherit (assetsLib) androidRoot androidIcons mkAndroidManifest macOsIcns macOsPlist;
           defaultAssetsPath = self.assets.${system}.defaultAssetsPath;
-          inherit (bundles) mkExecutablePath mkZip mkApple mkLicenses mkGamePath mkAndroidApk;
+          inherit (bundles) mkExecutablePath mkZip mkPath mkApple mkLicenses mkGamePath mkAndroidApk;
           executablesAttrs = self.executables.${system};
           d2df-distro-content = inputs.d2df-distro-content;
           d2df-distro-soundfont = inputs.d2df-distro-soundfont;

@@ -11,7 +11,7 @@ rustPlatform.buildRustPackage rec {
 
   inherit src;
 
-  cargoHash = "sha256-0pasD+ApgSniwiUNkQY7Iz580wWH+fGRBBGRXYHOM5k=";
+  cargoHash = "sha256-4G092Kfl0N0FXhgRYBTMT50iZ+eZPMKDrjaift1QDnU=";
 
   meta = {
     description = "Manage your DFWADs, extract and create them.";

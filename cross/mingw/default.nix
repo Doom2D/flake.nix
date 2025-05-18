@@ -196,7 +196,7 @@
             "LD='${ld}'"
             "AR='${ar}'"
             "RANLIB='${ranlib}'"
-            "WINDRES='${windres}'"
+
             "RC='${windres}'"
           ];
       in "${exports} ${crossPkgs.buildPackages.cmake}/bin/cmake ${cmakeFlags}";
