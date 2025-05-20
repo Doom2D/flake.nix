@@ -17,15 +17,15 @@ DISTRO_CONTENT_URL=$(nix flake metadata . --json 2>/dev/null | jq --raw-output '
 DISTRO_SOUNDFONT_PATH=$(nix eval '.#dfInputs' --json 2>/dev/null | jq --raw-output '."x86_64-linux"."d2df-distro-soundfont"')
 DISTRO_SOUNDFONT_URL=$(nix flake metadata . --json 2>/dev/null | jq --raw-output '.locks.nodes."d2df-distro-soundfont".locked.url')
 
-git clone https://github.com/Doom2D/Doom2D-Forever || :
-git clone https://github.com/Doom2D/DF-Res || :
+git clone https://github.com/Doom2D/Doom2D-Forever
+git clone https://github.com/Doom2D/DF-Assets
 
 D2DF_LAST_COMMIT_DATE=$(git   --git-dir Doom2D-Forever/.git    show -s --format=%ad --date=iso $D2DF_REV)
 EDITOR_LAST_COMMIT_DATE=$(git --git-dir Doom2D-Forever/.git show -s --format=%ad --date=iso $EDITOR_REV)
-RES_LAST_COMMIT_DATE=$(git    --git-dir DF-Res/.git      show -s --format=%ad --date=iso $RES_REV)
+RES_LAST_COMMIT_DATE=$(git    --git-dir DF-Assets/.git      show -s --format=%ad --date=iso $RES_REV)
 D2DF_COMMIT_MESSAGE=$(  git --git-dir Doom2D-Forever/.git log  --format=%B -n 1 $D2DF_REV | head -n1)
 EDITOR_COMMIT_MESSAGE=$(git --git-dir Doom2D-Forever/.git log  --format=%B -n 1 $EDITOR_REV | head -n1)
-RES_COMMIT_MESSAGE=$(   git --git-dir DF-Res/.git         log  --format=%B -n 1 $RES_REV | head -n1)
+RES_COMMIT_MESSAGE=$(   git --git-dir DF-Assets/.git         log  --format=%B -n 1 $RES_REV | head -n1)
 DISTRO_CONTENT_CREATION_DATE="$(rar ltb '-x*' "$DISTRO_CONTENT_PATH" | grep "Original time" | cut -d' ' -f3-)"
 DISTRO_CONTENT_CREATION_DATE_PRETTY="$(date --date="$DISTRO_CONTENT_CREATION_DATE" +'%d %B %Y %H:%M %Z')"
 DISTRO_CONTENT_CREATION_NAME="$(rar ltb '-x*' "$DISTRO_CONTENT_PATH" | grep "Original name" | cut -d' ' -f3-)"
