@@ -3,11 +3,11 @@
     "DF-Assets": {
       "flake": false,
       "locked": {
-        "lastModified": 1747336535,
-        "narHash": "sha256-SVaDyWrd3IM9sO0XGYakEdAsFroCPxhmJDxr8mJVHC4=",
+        "lastModified": 1747814769,
+        "narHash": "sha256-PzdFaqt47FIOLLQfGr0QgujjnEMLOacQ8ADTSDsOEd0=",
         "ref": "refs/heads/master",
-        "rev": "9a8c12788a7890abb54ff9e5ae83a9dd06e358b3",
-        "revCount": 85,
+        "rev": "d3b8e0e1e2729794485847c0fa7a7d56b5747c93",
+        "revCount": 96,
         "type": "git",
         "url": "https://github.com/Doom2D/DF-Assets"
       },
@@ -19,11 +19,11 @@
     "Doom2D-Forever": {
       "flake": false,
       "locked": {
-        "lastModified": 1747336971,
-        "narHash": "sha256-JBNvXhPQLnqZOwXZSzfKnggtPbgpdre6mktdRPrkGiQ=",
+        "lastModified": 1748036721,
+        "narHash": "sha256-8w6K3cNcovBMkE8GbNedVmWeZrkc2Z3AXwC7oqkaKc0=",
         "ref": "refs/heads/master",
-        "rev": "c529616135953bd95863d2891de040a5efe8409b",
-        "revCount": 1602,
+        "rev": "52ed340c4ff78e16044f052a85208f29a14539f6",
+        "revCount": 1611,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/Doom2D/Doom2D-Forever"
@@ -37,7 +37,7 @@
     "d2df-distro-content": {
       "flake": false,
       "locked": {
-        "narHash": "sha256-vwicj3QarN6IuTCYgwxWTB1Mo5ysxBXrUXSL3xVVtkM=",
+        "narHash": "sha256-Aq+bjXzLwjVsvGB4Jh1j6b54OeBnb6uP6ZacB/q5Jfs=",
         "type": "file",
         "url": "https://doom2d.org/doom2d_forever/latest/df_distro_content.rar"
       },
@@ -61,11 +61,11 @@
     "d2df-editor": {
       "flake": false,
       "locked": {
-        "lastModified": 1741097150,
-        "narHash": "sha256-V4fCSjY3Sf19ouYyR1eEV7qEVC3/7KzbCYjLQbaWoH0=",
+        "lastModified": 1747695676,
+        "narHash": "sha256-RbXhUzgYyqd2T5lA1e5R1Gej5lajofsidF07oZsK4A0=",
         "ref": "d2df-editor.git",
-        "rev": "15a52061a8fbb2730db5f909f8f25dbae71e8717",
-        "revCount": 199,
+        "rev": "5e3205c79e9fbb470cc313f79d53ea5d9f95e696",
+        "revCount": 200,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/Doom2D/Doom2D-Forever"
