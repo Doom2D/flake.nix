@@ -146,6 +146,12 @@ in {
         options = {
           enable = (lib.mkEnableOption "this doom2d server") // {default = true;};
           package = lib.mkPackageOption pkgs "doom2d-forever" {};
+          assets = lib.mkOption {
+            type = lib.types.path;
+            description = ''
+              Assets path, has {game,standart,shrshade,doomer,doom2d}.wad and {botlist,botnames}.txt
+            '';
+          };
           name = lib.mkOption {
             type = lib.mkOptionType {
               name = "d2dfServerName";
@@ -289,18 +295,6 @@ in {
     socketName = name: "${serviceName name}.socket";
   in
     lib.mkIf cfg.enable (let
-      doom2df-data = pkgs.fetchzip {
-        name = "doom2df-data";
-        url = "https://doom2d.org/doom2d_forever/latest/doom2df-win32.zip";
-        sha256 = "sha256-h5ayUrG+P6ea13cMAXdC39DGFth3/vMA80VwkpLXWoE=";
-        stripRoot = false;
-        postFetch = ''
-          cd $out
-          rm -rf *.dll *.exe
-        '';
-        meta.hydraPlatforms = [];
-        #passthru.version = version;
-      };
       doom2df-dm-maps-tarball = pkgs.fetchzip {
         name = "doom2df-dm-maps-tarball";
         url = "https://github.com/polybluez/filedump/releases/download/Tag3/dfmaps.tar.xz";
@@ -336,6 +330,7 @@ in {
         socket = socketName name;
         startScript = startScriptName name;
         isOnLowerPort = cfg.port < 1024;
+        doom2df-data = cfg.assets;
       in {
         description = "Doom2D Forever server instance ‘${name}’";
         wantedBy = ["multi-user.target"];
