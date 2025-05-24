@@ -26,7 +26,8 @@
           for (let n = shuffledArray.length - 1; n > 0; n--) // Iterate through the array in reverse order
           {
               // Generate a random index 'k' between 0 and n (inclusive)
-              const k = Math.floor(Math.random() * (n + 1));
+              // Math.random() replacement from https://stackoverflow.com/questions/5651789/is-math-random-cryptographically-secure
+              const k = Math.floor((crypto.getRandomValues(new Uint32Array(1))[0] / (0xFFFFFFFF + 1)) * (n + 1));
               // Swap (using tuple deconstruction) the elements at indices 'k' and 'n'
               [shuffledArray[k], shuffledArray[n]] = [shuffledArray[n], shuffledArray[k]];
           }
