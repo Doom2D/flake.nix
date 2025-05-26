@@ -10,16 +10,44 @@
   }:
     pkgs.writeText "d2df-maplist-generator.mjs" ''
       import { promises as fs } from "fs"
-      import * as crypto from 'crypto'
 
-      function secureRandom() {
-          const buf = new Uint8Array(1); crypto.getRandomValues(buf)
-          return buf[0]
+      // https://stackoverflow.com/questions/521295/seeding-the-random-number-generator-in-javascript
+      function cyrb128(str) {
+          let h1 = 1779033703, h2 = 3144134277,
+              h3 = 1013904242, h4 = 2773480762;
+          for (let i = 0, k; i < str.length; i++) {
+              k = str.charCodeAt(i);
+              h1 = h2 ^ Math.imul(h1 ^ k, 597399067);
+              h2 = h3 ^ Math.imul(h2 ^ k, 2869860233);
+              h3 = h4 ^ Math.imul(h3 ^ k, 951274213);
+              h4 = h1 ^ Math.imul(h4 ^ k, 2716044179);
+          }
+          h1 = Math.imul(h3 ^ (h1 >>> 18), 597399067);
+          h2 = Math.imul(h4 ^ (h2 >>> 22), 2869860233);
+          h3 = Math.imul(h1 ^ (h3 >>> 17), 951274213);
+          h4 = Math.imul(h2 ^ (h4 >>> 19), 2716044179);
+          h1 ^= (h2 ^ h3 ^ h4), h2 ^= h1, h3 ^= h1, h4 ^= h1;
+          return [h1>>>0, h2>>>0, h3>>>0, h4>>>0];
+      }
+      // Side note: Only designed & tested for seed generation,
+      // may be suboptimal as a general 128-bit hash.
+
+      function sfc32(a, b, c, d) {
+        return function() {
+          a |= 0; b |= 0; c |= 0; d |= 0;
+          let t = (a + b | 0) + d | 0;
+          d = d + 1 | 0;
+          a = b ^ b >>> 9;
+          b = c + (c << 3) | 0;
+          c = (c << 21 | c >>> 11);
+          c = c + t | 0;
+          return (t >>> 0) / 4294967296;
+        }
       }
 
       const shuffled = array => {
           // Seed the random number generator with datetime
-          Math.seed = new Date().getTime();
+          let seed = cyrb128((new Date().getTime()).toString());
 
           // Clone the array to avoid modifying the original
           const shuffledArray = array.slice();
@@ -27,7 +55,7 @@
           {
               // Generate a random index 'k' between 0 and n (inclusive)
               // Math.random() replacement from https://stackoverflow.com/questions/5651789/is-math-random-cryptographically-secure
-              const k = Math.floor((crypto.getRandomValues(new Uint32Array(1))[0] / (0xFFFFFFFF + 1)) * (n + 1));
+              const k = Math.floor(((sfc32(seed[0], seed[1], seed[2], seed[3]))()) * (n + 1));
               // Swap (using tuple deconstruction) the elements at indices 'k' and 'n'
               [shuffledArray[k], shuffledArray[n]] = [shuffledArray[n], shuffledArray[k]];
           }
@@ -63,7 +91,9 @@
               throw new Error("What")
           }
           const cycles = 1
-          const shuffleTimes = secureRandom()
+          // Seed the random number generator with datetime
+          let seed = cyrb128((new Date().getTime()).toString());
+          const shuffleTimes = ((sfc32(seed[0], seed[1], seed[2], seed[3]))()) * (10*1000)
           const replicated = Array(cycles).fill(flat.slice())
           const input = shuffleNested(shuffleTimes, replicated).flat()
           return input
@@ -459,7 +489,7 @@ in {
           execPath = "${baseCfgPath}/${execBaseName}";
           script = pkgs.writeShellScriptBin startScript ''
             sleep ${builtins.toString (cfg.order * 6)}s
-            TEMP_DIR="$(mktemp -d)/${abbr}-${name}" 
+            TEMP_DIR="$(mktemp -d)/${abbr}-${name}"
             mkdir -p "$TEMP_DIR" "${baseCfgPath}" "${baseStatePath}" "${lib.optionalString cfg.logs.enable baseLogsPath}"
             tempCfgPath="$TEMP_DIR/${cfgBaseName}"
             tempExecPath="$TEMP_DIR/${execBaseName}"
@@ -471,9 +501,9 @@ in {
             ${lib.optionalString cfg.rcon.enable ''
               [ -f "${cfg.rcon.file}" ] && echo -e "sv_rcon_password \"$(cat ${cfg.rcon.file})\"" >> "$tempExecPath" || echo "sv_rcon 0" >> "$tempExecPath"
             ''}
-            rm -f "${cfgPath}" "${execPath}" 
+            rm -f "${cfgPath}" "${execPath}"
             ln -s "$tempCfgPath" "${cfgPath}"
-            ln -s "$tempExecPath" "${execPath}" 
+            ln -s "$tempExecPath" "${execPath}"
             ${lib.getExe cfg.package} ${builtins.concatStringsSep " " launchArgs}'';
         in "${script}/bin/${startScript}";
         serviceConfig.Restart = "always";
