@@ -46,22 +46,13 @@
       }
 
       const shuffled = array => {
-          // Seed the random number generator with datetime
-          let seed = cyrb128((new Date().getTime()).toString());
-
-          // Clone the array to avoid modifying the original
-          const shuffledArray = array.slice();
-          for (let n = shuffledArray.length - 1; n > 0; n--) // Iterate through the array in reverse order
-          {
-              // Generate a random index 'k' between 0 and n (inclusive)
-              // Math.random() replacement from https://stackoverflow.com/questions/5651789/is-math-random-cryptographically-secure
-              const k = Math.floor(((sfc32(seed[0], seed[1], seed[2], seed[3]))()) * (n + 1));
-              // Swap (using tuple deconstruction) the elements at indices 'k' and 'n'
-              [shuffledArray[k], shuffledArray[n]] = [shuffledArray[n], shuffledArray[k]];
-          }
-
-          // Return the shuffled array
-          return shuffledArray;
+          return array.slice()
+            .map(value => ({ value, sort: (function () {
+              let seed = cyrb128((new Date().getTime() + Math.random()).toString());
+              return (sfc32(seed[0], seed[1], seed[2], seed[3]))()
+            })()}))
+            .sort((a, b) => a.sort - b.sort)
+            .map(({ value }) => value)
       }
 
       const path = "${mapsJsonPath}"
@@ -92,7 +83,7 @@
           }
           const cycles = 1
           // Seed the random number generator with datetime
-          let seed = cyrb128((new Date().getTime()).toString());
+          let seed = cyrb128((new Date().getTime() + Math.random()).toString());
           const shuffleTimes = ((sfc32(seed[0], seed[1], seed[2], seed[3]))()) * (10*1000)
           const replicated = Array(cycles).fill(flat.slice())
           const input = shuffleNested(shuffleTimes, replicated).flat()
