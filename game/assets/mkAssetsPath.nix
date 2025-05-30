@@ -76,7 +76,8 @@ stdenvNoCC.mkDerivation {
     + lib.optionalString withBotRelatedStuff ''
       cp "${botlist}" data/botlist.txt
       cp "${botnames}" data/botnames.txt
-    '' + lib.optionalString (withBotRelatedStuff && withDates) ''
+    ''
+    + lib.optionalString (withBotRelatedStuff && withDates) ''
       touch -d "${assetsDate}" data/botlist.txt
       touch -d "${assetsDate}" data/botnames.txt
     ''

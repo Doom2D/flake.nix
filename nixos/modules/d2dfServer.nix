@@ -185,6 +185,22 @@ in {
               Name of the server which will be shown in the server list.
             '';
           };
+          motd = {
+            enable = lib.mkEnableOption "MOTD messages";
+            message = lib.mkOption {
+              type = lib.types.str;
+              description = ''
+                MOTD message string
+              '';
+            };
+            delay = lib.mkOption {
+              type = lib.types.int;
+              default = 5 * 60;
+              description = ''
+                Delay between MOTD messages.
+              '';
+            };
+          };
           port = lib.mkOption {
             type = lib.types.port;
             default = 25666;
@@ -404,6 +420,13 @@ in {
               )
             )
             + "\n"
+            + (let
+              motdMessage = cfg.motd.message;
+            in
+              lib.optionalString cfg.motd.enable ''
+                alias motd "say ${motdMessage}; centerprint 150 ${motdMessage}"
+              '')
+            + "\n"
             + toString cfg.appendConfig
           );
           configFile = pkgs.writeText "${abbr}-server.cfg" (printSettings cfg cfg.settings);
@@ -478,6 +501,12 @@ in {
           cfgPath = "${baseCfgPath}/${cfgBaseName}";
           execBaseName = "exec.txt";
           execPath = "${baseCfgPath}/${execBaseName}";
+          motd = pkgs.writeShellScript "motd-${serviceName name}" ''
+            while true; do
+              sleep ${builtins.toString (cfg.motd.delay)}s;
+              echo "call motd" > /run/${serviceName name}.stdin;
+            done
+          '';
           script = pkgs.writeShellScriptBin startScript ''
             sleep ${builtins.toString (cfg.order * 6)}s
             TEMP_DIR="$(mktemp -d)/${abbr}-${name}"
@@ -495,6 +524,7 @@ in {
             rm -f "${cfgPath}" "${execPath}"
             ln -s "$tempCfgPath" "${cfgPath}"
             ln -s "$tempExecPath" "${execPath}"
+            ${lib.optionalString cfg.motd.enable "${motd} &"}
             ${lib.getExe cfg.package} ${builtins.concatStringsSep " " launchArgs}'';
         in "${script}/bin/${startScript}";
         serviceConfig.Restart = "always";
