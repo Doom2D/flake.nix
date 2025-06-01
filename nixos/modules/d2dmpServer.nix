@@ -105,7 +105,7 @@ in {
         HOME = "${userDir}/tmp";
         DISPLAY = ":${xorgDisplayNumber}";
         WINEDLLOVERRIDES = "d3d8=n;winemenubuilder.exe=d;mscoree,mshtml=";
-        #WINEDEBUG="-all";
+        WINEDEBUG="-all";
       };
       serviceConfig =
         {
