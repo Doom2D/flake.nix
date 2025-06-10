@@ -42,7 +42,12 @@
       # On an Apple silicon Mac:
       # 1. Titlepic is sometimes used instead of some textures on the map, covering half of the map.
       # 2. Bus errors, unaligned access.
-      wrapperArgs = ["-O1" "-g" "-gl"];
+      wrapperArgs = [
+        "-O1"
+        "-g"
+        "-gl"
+        "-k-headerpad_max_install_names"
+      ];
       targetArg = "-Tdarwin";
       basename = fpcBinary;
       makeArgs = {
@@ -81,6 +86,7 @@
           "-L${sdk}/usr/lib"
           "-L${sdk}/usr/lib/system"
           "-I${sdk}/usr/include"
+          "-headerpad_max_install_names"
           # https://github.com/libsdl-org/SDL/issues/6491
           #"-lclang_rt.osx"
         ];
