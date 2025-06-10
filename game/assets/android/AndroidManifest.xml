@@ -67,8 +67,6 @@
         android:hardwareAccelerated="true"
         android:debuggable="true" >
 
-        <meta-data android:name="SDL_ENV.SDL_ACCELEROMETER_AS_JOYSTICK" android:value="0"/>
-
         <activity android:name="Launcher"
                   android:label="Doom2D Forever"
                   android:launchMode="singleInstance"
