@@ -1,5 +1,6 @@
 #!/bin/bash
 set -euo pipefail
+set -x
 if [[ "${UPDATE_FLAKE:-1}" == "1" ]]; then
     nix flake update Doom2D-Forever d2df-editor DF-Assets d2df-distro-soundfont d2df-distro-content
 fi
