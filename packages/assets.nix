@@ -10,15 +10,44 @@
   mkAssetsPath,
 }: rec {
   wads = lib.listToAttrs (lib.map (wad: {
-    name = wad;
-    value = callPackage buildWad {
-      outName = wad;
-      lstPath = "${wad}.lst";
-      dfwadCompression = "best";
-      inherit DF-Assets;
-      inherit dfwad;
-    };
-  }) ["game" "editor" "shrshade" "standart" "doom2d" "doomer"]);
+      name = wad.out;
+      value = callPackage buildWad {
+        srcFolder = wad.srcFolder;
+        outName = wad.out;
+        normalizeBlacklist = wad.normalizeBlacklist or [];
+        lstPath = "${wad.out}.lst";
+        dfwadCompression = "best";
+        inherit DF-Assets;
+        inherit dfwad;
+      };
+    }) [
+      {
+        out = "game";
+        srcFolder = "GameWAD";
+        # Make these quiet, as they are very annoying
+        normalizeQuiet = ["BUBBLE1.wav" "BUBBLE2.wav" "BURNING.wav" "SHELL1.wav" "SHELL2.wav"];
+      }
+      {
+        out = "editor";
+        srcFolder = "EditorWAD";
+      }
+      {
+        out = "shrshade";
+        srcFolder = "ShrShadeWAD";
+      }
+      {
+        out = "standart";
+        srcFolder = "StandartWAD";
+      }
+      {
+        out = "doom2d";
+        srcFolder = "Doom2DWAD";
+      }
+      {
+        out = "doomer";
+        srcFolder = "DoomerWAD";
+      }
+    ]);
   defaultAssetsPath = mkAssetsPath.override {
     doom2dWad = wads.doom2d;
     doomerWad = wads.doomer;
