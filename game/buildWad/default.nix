@@ -1,10 +1,13 @@
 let
   standard = ./scripts/parse.awk;
+  normalizerPath = ./scripts/normalize.bash;
 in {
   buildWadScript = standard;
   buildWad = {
     outName ? "game",
+    srcFolder ? "GameWAD",
     lstPath ? "game.lst",
+    lib,
     DF-Assets,
     buildWadScript ? standard,
     stdenvNoCC,
@@ -17,7 +20,17 @@ in {
     dos2unix,
     dfwad,
     dfwadCompression ? "none",
-  }:
+    shouldNormalize ? true,
+    normalizeBlacklist ? [],
+    parallel,
+    findutils,
+    ffmpeg,
+    ffmpeg-normalize,
+    ripgrep,
+    writeShellScript,
+  }: let
+    normalizer = writeShellScript "normalizer" (builtins.readFile normalizerPath);
+  in
     stdenvNoCC.mkDerivation {
       pname = "d2df-${outName}-wad";
       version = "git";
@@ -26,7 +39,15 @@ in {
       dontPatchELF = true;
       dontFixup = true;
 
-      nativeBuildInputs = [bash gawk gnused convmv dfwad coreutils util-linux dos2unix];
+      nativeBuildInputs =
+        [bash gawk gnused convmv dfwad coreutils util-linux dos2unix]
+        ++ lib.optionals shouldNormalize [
+          parallel
+          findutils
+          ffmpeg
+          ffmpeg-normalize
+          ripgrep
+        ];
 
       src = DF-Assets;
 
@@ -47,6 +68,25 @@ in {
           echo "Fixing shrshade.wad paths"
           sed -i 's\shrshadewad\ShrShadeWAD\g' shrshade.lst
         ''
+        + lib.optionalString shouldNormalize (
+          # HACK: these are the sounds we make more quiet.
+          # After some tries, I've conclued that -18.0 target volume, peak normalization is OK.
+          # Still, DF needs to have separate volume levels for weapon sounds, casing, etc.
+          lib.optionalString (normalizeBlacklist != []) ''
+            find ${srcFolder} -type f \( -iname '*.mp3' -or -iname '*.wav' \) \
+             ${lib.optionalString (normalizeBlacklist != []) " | grep "
+              + (lib.concatStringsSep " "
+                (lib.map (x: "-e ${x}") normalizeBlacklist))} \
+             | parallel -j32 ${normalizer} {} -18.0 peak \;
+          ''
+          + ''
+            find ${srcFolder} -type f \( -iname '*.mp3' -or -iname '*.wav' \) \
+             ${lib.optionalString (normalizeBlacklist != []) " | grep -v "
+              + (lib.concatStringsSep " "
+                (lib.map (x: "-e ${x}") normalizeBlacklist))} \
+             | parallel -j32 ${normalizer} {} -5.0 ebu \;
+          ''
+        )
         + ''
           mkdir -p temp
           chmod -R 777 temp
