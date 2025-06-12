@@ -15,6 +15,7 @@ args @ {
   mkAndroidManifest,
   androidPlatform,
   androidIcons,
+  versionExtraPrefix ? "",
   assets,
   executables,
   licenses ? null,
@@ -30,7 +31,7 @@ stdenv.mkDerivation (finalAttrs: let
   zipalign = "${ANDROID_HOME}/build-tools/35.0.0/zipalign";
   androidManifest = callPackage mkAndroidManifest {
     packageName = "org.d2df.app";
-    versionName = "0.667-git";
+    versionName = "0.667b${versionExtraPrefix}";
     minSdkVersion = androidPlatform;
     targetSdkVersion = "34";
     glEsVersion = "0x00010001";

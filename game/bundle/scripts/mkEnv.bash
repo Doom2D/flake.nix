@@ -21,6 +21,7 @@ DISTRO_SOUNDFONT_URL=$(nix flake metadata . --json 2>/dev/null | jq --raw-output
 git clone https://github.com/Doom2D/Doom2D-Forever
 git clone https://github.com/Doom2D/DF-Assets
 
+BUILD_DATE="$(date +"%Y.%m.%d-%H:%M")"
 D2DF_LAST_COMMIT_DATE=$(git   --git-dir Doom2D-Forever/.git    show -s --format=%ad --date=iso $D2DF_REV)
 EDITOR_LAST_COMMIT_DATE=$(git --git-dir Doom2D-Forever/.git show -s --format=%ad --date=iso $EDITOR_REV)
 RES_LAST_COMMIT_DATE=$(git    --git-dir DF-Assets/.git      show -s --format=%ad --date=iso $RES_REV)
@@ -38,6 +39,7 @@ echo "NIXPKGS_REV=$NIXPKGS_REV" >> "$GITHUB_ENV"
 echo "D2DF_REV=$D2DF_REV" >> "$GITHUB_ENV"
 echo "EDITOR_REV=$RES_REV" >> "$GITHUB_ENV"
 echo "RES_REV=$RES_REV" >> "$GITHUB_ENV"
+echo "BUILD_DATE=$BUILD_DATE" >> "$GITHUB_ENV"
 echo "D2DF_LAST_COMMIT_DATE=$D2DF_LAST_COMMIT_DATE" >> "$GITHUB_ENV"
 echo "EDITOR_LAST_COMMIT_DATE=$EDITOR_LAST_COMMIT_DATE" >> "$GITHUB_ENV"
 echo "RES_LAST_COMMIT_DATE=$RES_LAST_COMMIT_DATE" >> "$GITHUB_ENV"

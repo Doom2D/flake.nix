@@ -103,6 +103,7 @@ jobs:
         if: ${{ matrix.arch == 'android' }}
         env:
           BUNDLE_NAME: android.bundles.default
+          EMBED_BUILD_DATE: 1
         run: |
           ./game/bundle/scripts/mkOverride.bash
           cp result Doom2D-Forever.apk

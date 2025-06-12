@@ -11,6 +11,7 @@ cat <<EOF
 (prev: {
   executables = prev.executables.override {gameDate = "$D2DF_LAST_COMMIT_DATE"; editorDate = "$EDITOR_LAST_COMMIT_DATE"; withDates = true;};
   assets = prev.assets.override {editorDate = "$EDITOR_LAST_COMMIT_DATE"; assetsDate = "$RES_LAST_COMMIT_DATE"; withDates = true;};
+  $([[ ! -z "${EMBED_BUILD_DATE}" ]] && echo "versionExtraPrefix = \"-$BUILD_DATE\";")
 })
 EOF
 )
