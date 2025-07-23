@@ -15,7 +15,7 @@ rustPlatform.buildRustPackage rec {
 
   meta = {
     description = "Manage your DFWADs, extract and create them.";
-    homepage = "https://github.com/poybluez/dfwad";
-    license = lib.licenses.mit0;
+    homepage = "https://github.com/Doom2D/dfwad";
+    license = lib.licenses.unlicense;
   };
 }
