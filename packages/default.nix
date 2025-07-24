@@ -121,7 +121,7 @@
         then {"${flag}" = true;}
         else {"${flag}" = false;};
       headlessFeature = boolFeature "headless" headless;
-      holmesFeature = boolFeature "holmes" holmes;
+      holmesFeature = boolFeature "withHolmes" holmes;
     in {
       value = {
         drv = doom2d.override ({
