@@ -55,9 +55,6 @@ in {
         # FIXME
         # Script should be able to support arbitrary paths, not just in the current directory
         # FIXME
-        # For some reason, shrshade.lst specifies the source folder in lowercase.
-        # This doesn't fly in Linux.
-        # FIXME
         # dos line endings have to be forced, because game doesn't recognize lf lines
         ''
           set -euo pipefail
@@ -65,8 +62,6 @@ in {
           find . -type f -exec unix2dos {} \;
           echo "Fixing dos line endings"
           dos2unix ${lstPath}
-          echo "Fixing shrshade.wad paths"
-          sed -i 's\shrshadewad\ShrShadeWAD\g' shrshade.lst
         ''
         + lib.optionalString shouldNormalize (
           # HACK: these are the sounds we make more quiet.
