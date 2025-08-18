@@ -6,7 +6,7 @@
   DF-Assets,
   d2df-editor,
   buildWad,
-  dfwad,
+  dfw-rs,
   mkAssetsPath,
 }: rec {
   wads = lib.listToAttrs (lib.map (wad: {
@@ -18,7 +18,7 @@
         lstPath = "${wad.out}.lst";
         dfwadCompression = "best";
         inherit DF-Assets;
-        inherit dfwad;
+        inherit dfw-rs;
       };
     }) [
       {

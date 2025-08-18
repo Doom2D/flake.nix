@@ -4,7 +4,7 @@
   doom2d-multiplayer-game-data = import ./d2dmpData.nix;
   editor = import ./editor;
   wadcvt = import ./utils/wadcvt.nix;
-  dfwad = import ./utils/dfwad.nix;
+  dfw-rs = import ./utils/dfw-rs.nix;
   doom2df-bundle = import ./bundle;
   buildWad = (import ./buildWad).buildWad;
   buildWadScript = (import ./buildWad).buildWadScript;

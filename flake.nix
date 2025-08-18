@@ -55,7 +55,8 @@
             wadcvt = final.callPackage d2dfPkgs.wadcvt {
               inherit Doom2D-Forever;
             };
-            dfwad = final.callPackage d2dfPkgs.dfwad {};
+            dfw-rs = final.callPackage d2dfPkgs.dfw-rs {};
+            dfwad = lib.warn "dfwad is an alias of dfw-rs, so use that!" final.dfw-rs;
             cctools = osxcross.packages.${system}.cctools;
             macdylibbundler = prev.macdylibbundler.overrideAttrs (prevAttrs: let
               otool = final.writeShellScriptBin "otool" ''
@@ -120,7 +121,7 @@
 
       assets = import ./packages/assets.nix {
         inherit lib;
-        inherit (pkgs) callPackage stdenv writeText dfwad;
+        inherit (pkgs) callPackage stdenv writeText dfw-rs;
         inherit DF-Assets d2df-editor;
         inherit (d2dfPkgs) buildWad;
         inherit (assetsLib) mkAssetsPath;
@@ -151,7 +152,7 @@
         lib.recursiveUpdate cross aux;
 
       packages = {
-        inherit (pkgs) wadcvt dfwad;
+        inherit (pkgs) wadcvt dfw-rs dfwad;
       };
 
       forPrebuild = let
@@ -164,7 +165,7 @@
           acc
           // {
             "${cur}" =
-              pkgs.closureInfo {rootPaths = [(pkgs.linkFarmFromDrvs "cache-${cur}" drvs) pkgs.dfwad];};
+              pkgs.closureInfo {rootPaths = [(pkgs.linkFarmFromDrvs "cache-${cur}" drvs) pkgs.dfw-rs];};
           }) {}
         arches;
 

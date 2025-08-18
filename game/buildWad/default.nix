@@ -18,7 +18,7 @@ in {
     util-linux,
     bash,
     dos2unix,
-    dfwad,
+    dfw-rs,
     dfwadCompression ? "none",
     shouldNormalize ? true,
     normalizeBlacklist ? [],
@@ -40,7 +40,7 @@ in {
       dontFixup = true;
 
       nativeBuildInputs =
-        [bash gawk gnused convmv dfwad coreutils util-linux dos2unix]
+        [bash gawk gnused convmv dfw-rs coreutils util-linux dos2unix]
         ++ lib.optionals shouldNormalize [
           parallel
           findutils
@@ -85,7 +85,7 @@ in {
         + ''
           mkdir -p temp
           chmod -R 777 temp
-          echo "Moving files from ${lstPath} to dfwad suitable directory"
+          echo "Moving files from ${lstPath} to dfw-rs suitable directory"
           ${gawk}/bin/awk -f ${buildWadScript} -v prefix="temp" ${lstPath}
           # For some reason, this AWK script sets wrong perms
           chmod -R 777 temp
@@ -97,8 +97,8 @@ in {
                      echo "moving $1 to $(dirname $1)/$WITHOUT_EXT";
                      mv "$1" "$(dirname $1)/$WITHOUT_EXT";
                      ' bash {} \;
-          echo "Calling ${lib.getExe dfwad}"
-          ${lib.getExe dfwad} -v -z "${dfwadCompression}" temp/ ${outName}.wad pack
+          echo "Calling dfw-rs"
+          dfw-rs -v -z "${dfwadCompression}" temp/ ${outName}.wad pack
         '';
 
       installPhase = ''
