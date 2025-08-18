@@ -3,11 +3,11 @@
     "DF-Assets": {
       "flake": false,
       "locked": {
-        "lastModified": 1747814769,
-        "narHash": "sha256-PzdFaqt47FIOLLQfGr0QgujjnEMLOacQ8ADTSDsOEd0=",
+        "lastModified": 1753337823,
+        "narHash": "sha256-JTLVD4tIOtSY+gsaD7nfzanHfTtUmS3vUbyFqOkHN14=",
         "ref": "refs/heads/master",
-        "rev": "d3b8e0e1e2729794485847c0fa7a7d56b5747c93",
-        "revCount": 96,
+        "rev": "c25d8ba3f5dd1819f5912811b075283493ac281b",
+        "revCount": 106,
         "type": "git",
         "url": "https://github.com/Doom2D/DF-Assets"
       },
@@ -19,11 +19,11 @@
     "Doom2D-Forever": {
       "flake": false,
       "locked": {
-        "lastModified": 1748036721,
-        "narHash": "sha256-8w6K3cNcovBMkE8GbNedVmWeZrkc2Z3AXwC7oqkaKc0=",
+        "lastModified": 1751972428,
+        "narHash": "sha256-U4+FHl30cKQDnoVfDx4QIBcuCNbSFYZI0L3cdUqa06Q=",
         "ref": "refs/heads/master",
-        "rev": "52ed340c4ff78e16044f052a85208f29a14539f6",
-        "revCount": 1611,
+        "rev": "81d1abe9cb3656d6192b4e60952084b1f0c48b88",
+        "revCount": 1648,
         "submodules": true,
         "type": "git",
         "url": "https://github.com/Doom2D/Doom2D-Forever"
@@ -144,11 +144,11 @@
     },
     "nixpkgs_2": {
       "locked": {
-        "lastModified": 1747179050,
-        "narHash": "sha256-qhFMmDkeJX9KJwr5H32f1r7Prs7XbQWtO0h3V0a0rFY=",
+        "lastModified": 1755186698,
+        "narHash": "sha256-wNO3+Ks2jZJ4nTHMuks+cxAiVBGNuEBXsT29Bz6HASo=",
         "owner": "NixOS",
         "repo": "nixpkgs",
-        "rev": "adaa24fbf46737f3f1b5497bf64bae750f82942e",
+        "rev": "fbcf476f790d8a217c3eab4e12033dc4a0f6d23c",
         "type": "github"
       },
       "original": {
