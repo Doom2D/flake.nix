@@ -97,8 +97,8 @@ in {
                      echo "moving $1 to $(dirname $1)/$WITHOUT_EXT";
                      mv "$1" "$(dirname $1)/$WITHOUT_EXT";
                      ' bash {} \;
-          echo "Calling dfwad"
-          dfwad -v -z "${dfwadCompression}" temp/ ${outName}.wad pack
+          echo "Calling ${lib.getExe dfwad}"
+          ${lib.getExe dfwad} -v -z "${dfwadCompression}" temp/ ${outName}.wad pack
         '';
 
       installPhase = ''

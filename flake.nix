@@ -55,9 +55,7 @@
             wadcvt = final.callPackage d2dfPkgs.wadcvt {
               inherit Doom2D-Forever;
             };
-            dfwad = final.callPackage d2dfPkgs.dfwad {
-              src = pins.dfwad.src;
-            };
+            dfwad = final.callPackage d2dfPkgs.dfwad {};
             cctools = osxcross.packages.${system}.cctools;
             macdylibbundler = prev.macdylibbundler.overrideAttrs (prevAttrs: let
               otool = final.writeShellScriptBin "otool" ''

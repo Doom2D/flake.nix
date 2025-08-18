@@ -38,20 +38,6 @@
       sha256 = "sha256-6HOTLwGi2oSQChwHE/oNHfZpcMh8xTuwNQSpKS01bwI=";
     };
   };
-  dfwad = {
-    pname = "dfwad";
-    version = "796f2fdebd21c46e741ef28cecb723b1c35398d5";
-    src = fetchgit {
-      url = "https://github.com/Doom2D/dfwad";
-      rev = "796f2fdebd21c46e741ef28cecb723b1c35398d5";
-      fetchSubmodules = false;
-      deepClone = false;
-      leaveDotGit = false;
-      sparseCheckout = [];
-      sha256 = "sha256-uCUVWF/GujuuzO/jBMqohUR75BBaSLYc3xF6UQO7iRY=";
-    };
-    date = "2025-03-05";
-  };
   enet = {
     pname = "enet";
     version = "657eaf97d9d335917c58484a4a4b5e03838ebd8e";

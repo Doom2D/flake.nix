@@ -62,26 +62,6 @@
         },
         "version": "release-2.8.1"
     },
-    "dfwad": {
-        "cargoLocks": null,
-        "date": "2025-03-05",
-        "extract": null,
-        "name": "dfwad",
-        "passthru": null,
-        "pinned": false,
-        "src": {
-            "deepClone": false,
-            "fetchSubmodules": false,
-            "leaveDotGit": false,
-            "name": null,
-            "rev": "796f2fdebd21c46e741ef28cecb723b1c35398d5",
-            "sha256": "sha256-uCUVWF/GujuuzO/jBMqohUR75BBaSLYc3xF6UQO7iRY=",
-            "sparseCheckout": [],
-            "type": "git",
-            "url": "https://github.com/Doom2D/dfwad"
-        },
-        "version": "796f2fdebd21c46e741ef28cecb723b1c35398d5"
-    },
     "enet": {
         "cargoLocks": null,
         "date": "2024-11-14",

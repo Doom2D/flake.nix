@@ -69,10 +69,6 @@ src.git = "https://github.com/chirs241097/fluidsynth-sans-glib"
 fetch.git = "https://github.com/chirs241097/fluidsynth-sans-glib"
 src.branch = "patched"
 
-[dfwad]
-src.git = "https://github.com/Doom2D/dfwad"
-fetch.git = "https://github.com/Doom2D/dfwad"
-
 [miniupnpc]
 src.github_tag = "miniupnp/miniupnp"
 fetch.github = "miniupnp/miniupnp"
