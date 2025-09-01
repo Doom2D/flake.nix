@@ -24,7 +24,8 @@
       {
         out = "game";
         srcFolder = "GameWAD";
-        # Make these quiet, as they are very annoying
+        shouldNormalize = true;
+        # Leave these quiet, as they are very annoying
         normalizeBlacklist = ["CASING1.wav" "CASING2.wav" "BUBBLE1.wav" "BUBBLE2.wav" "BURNING.wav" "SHELL1.wav" "SHELL2.wav"];
       }
       {
@@ -46,6 +47,7 @@
       {
         out = "doomer";
         srcFolder = "DoomerWAD";
+        shouldNormalize = true;
       }
     ]);
   defaultAssetsPath = mkAssetsPath.override {

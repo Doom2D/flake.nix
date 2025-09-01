@@ -20,7 +20,7 @@ in {
     dos2unix,
     dfw-rs,
     dfwadCompression ? "none",
-    shouldNormalize ? true,
+    shouldNormalize ? false,
     normalizeBlacklist ? [],
     parallel,
     findutils,
