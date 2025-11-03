@@ -214,6 +214,7 @@ jobs:
           name: ${{ env.RELEASE_NAME }}
           bodyFile: release_body
           tag: ${{ env.RELEASE_NAME }}
+          immutableCreate: true
           allowUpdates: false
           artifactErrorsFailBuild: true
       - name: Delete releases and workflows runs
